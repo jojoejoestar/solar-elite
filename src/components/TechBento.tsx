@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Cpu, Smartphone, Wrench, Shield } from "lucide-react";
+import { LightParticles } from "./LightEffects";
 
 const items = [
   {
@@ -29,12 +30,15 @@ const items = [
 ];
 
 const TechBento = () => (
-  <section id="tecnologia" className="py-24">
-    <div className="container mx-auto px-4 lg:px-8">
+  <section id="tecnologia" className="py-24 relative overflow-hidden">
+    <LightParticles count={10} className="opacity-20" />
+
+    <div className="container mx-auto px-4 lg:px-8 relative z-10">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.7 }}
         className="text-center max-w-2xl mx-auto mb-14"
       >
         <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-4">
@@ -49,19 +53,27 @@ const TechBento = () => (
         {items.map((item, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className={`glass-panel p-8 group hover:border-primary/30 transition-colors ${item.span}`}
+            initial={{ opacity: 0, y: 25, scale: 0.96 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.5, delay: i * 0.1 }}
+            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+            className={`glass-panel p-8 group hover:border-primary/30 transition-all relative overflow-hidden ${item.span}`}
           >
-            <item.icon className="text-primary mb-4 group-hover:scale-110 transition-transform" size={32} />
+            {/* Hover light shimmer */}
+            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+              <item.icon className="text-primary group-hover:scale-110 transition-transform" size={24} />
+            </div>
             <h3 className="text-lg font-bold text-foreground mb-2">{item.title}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
           </motion.div>
         ))}
       </div>
     </div>
+
+    <div className="absolute bottom-0 left-0 right-0 glow-divider" />
   </section>
 );
 
