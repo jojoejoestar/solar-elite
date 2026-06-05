@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+        sans: ["var(--font-ibm-plex)", "system-ui", "sans-serif"],
+        display: ["var(--font-space-grotesk)", "var(--font-ibm-plex)", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

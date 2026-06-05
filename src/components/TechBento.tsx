@@ -1,102 +1,131 @@
-import { motion } from "framer-motion";
+"use client";
+
+import Image from "next/image";
 import { Cpu, Smartphone, Wrench, Shield } from "lucide-react";
-import { LightParticles } from "./LightEffects";
-import techPanelDetail from "@/assets/tech-panel-detail.jpg";
-import techInstallation from "@/assets/tech-installation.jpg";
+import { useSectionSymphony } from "@/hooks/useSectionSymphony";
+import { cardHoverIn, cardHoverOut } from "@/lib/motion";
+import { images } from "@/lib/images";
+import { SectionHeader } from "./ui/SectionHeader";
 
 const items = [
   {
     icon: Cpu,
+    tag: "Hardware",
     title: "Módulos Tier 1",
-    desc: "Painéis de máxima eficiência com certificação internacional. Rendimento superior mesmo em dias nublados.",
+    desc: "Máxima eficiência e certificação internacional. Rendimento superior mesmo em dias nublados.",
+    spec: "Eficiência > 21%",
     span: "md:col-span-2",
-    image: techPanelDetail,
+    image: images.techPanel,
+    imagePosition: "center 60%",
+    accent: "primary" as const,
   },
   {
     icon: Shield,
+    tag: "Inversão",
     title: "Microinversores de Ponta",
     desc: "Cada painel opera de forma independente. Mais segurança, mais geração, menos perdas.",
+    spec: "Monitoramento individual",
     span: "",
     image: null,
+    accent: "secondary" as const,
   },
   {
     icon: Smartphone,
+    tag: "Software",
     title: "Monitoramento 24/7",
-    desc: "Acompanhe a geração em tempo real pelo app. Dados de produção, economia e performance na palma da mão.",
+    desc: "Geração, economia e performance em tempo real pelo app.",
+    spec: "App iOS & Android",
     span: "",
     image: null,
+    accent: "primary" as const,
   },
   {
     icon: Wrench,
+    tag: "Execução",
     title: "Instalação Cirúrgica",
-    desc: "Equipe própria especializada. Sem terceirizados, sem dor de cabeça. Do projeto ao comissionamento em tempo recorde.",
+    desc: "Equipe própria especializada. Do projeto ao comissionamento em tempo recorde.",
+    spec: "Obra em até 5 dias",
     span: "md:col-span-2",
-    image: techInstallation,
+    image: images.techInstallation,
+    imagePosition: "center 30%",
+    accent: "secondary" as const,
   },
 ];
 
-const TechBento = () => (
-  <section id="tecnologia" className="py-24 relative overflow-hidden">
-    <LightParticles count={10} className="opacity-20" />
+const TechBento = () => {
+  const scope = useSectionSymphony<HTMLElement>({ preset: "grid" });
 
-    <div className="container mx-auto px-4 lg:px-8 relative z-10">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.7 }}
-        className="text-center max-w-2xl mx-auto mb-14"
-      >
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-4">
-          Tecnologia que <span className="text-gradient-emerald">gera resultados</span>
-        </h2>
-        <p className="text-muted-foreground">
-          Cada componente é selecionado para maximizar seu retorno financeiro e a longevidade do sistema.
-        </p>
-      </motion.div>
+  return (
+    <section id="tecnologia" ref={scope} className="section-tight relative overflow-hidden section-defer" data-motion>
+      <div className="absolute inset-0 gradient-mesh opacity-70 pointer-events-none" />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-        {items.map((item, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 25, scale: 0.96 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: i * 0.1 }}
-            whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-            className={`glass-panel group hover:border-primary/30 transition-all relative overflow-hidden ${item.span}`}
-          >
-            {/* Hover light shimmer */}
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="container mx-auto px-4 lg:px-8 relative z-10">
+        <div data-symphony="heading">
+          <SectionHeader
+            eyebrow="Stack tecnológico"
+            title={
+              <>
+                Tecnologia que <span className="text-gradient-emerald">gera resultados</span>
+              </>
+            }
+            description="Componentes selecionados para maximizar retorno e longevidade do sistema."
+          />
+        </div>
 
-            {item.image && (
-              <div className="relative h-40 overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  loading="lazy"
-                  width={800}
-                  height={544}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[hsl(var(--glass-bg))] to-transparent" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 max-w-5xl mx-auto">
+          {items.map((item, i) => (
+            <div
+              key={i}
+              data-symphony="item"
+              className={`bento-card group ${item.span}`}
+              tabIndex={0}
+              onMouseEnter={(e) => cardHoverIn(e.currentTarget, "[data-card-icon]")}
+              onMouseLeave={(e) => cardHoverOut(e.currentTarget, "[data-card-icon]")}
+              onFocus={(e) => cardHoverIn(e.currentTarget, "[data-card-icon]")}
+              onBlur={(e) => cardHoverOut(e.currentTarget, "[data-card-icon]")}
+            >
+              <div className="surface-accent-top" aria-hidden />
+              <div className="bento-shine" aria-hidden />
+
+              {item.image && (
+                <div className="bento-card-image">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    loading="lazy"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    style={{ objectPosition: item.imagePosition }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[hsl(222,47%,7%)] via-[hsl(222,47%,7%)/0.4] to-transparent" />
+                  <span className="bento-card-tag">{item.tag}</span>
+                </div>
+              )}
+
+              <div className="bento-card-body">
+                {!item.image && <span className="bento-card-tag static mb-4 inline-block">{item.tag}</span>}
+
+                <div
+                  data-card-icon
+                  className={`surface-icon mb-4 ${item.accent === "secondary" ? "surface-icon-emerald" : ""}`}
+                >
+                  <item.icon
+                    className={item.accent === "secondary" ? "text-secondary" : "text-primary"}
+                    size={20}
+                  />
+                </div>
+
+                <h3 className="surface-title">{item.title}</h3>
+                <p className="surface-desc">{item.desc}</p>
+                <span className="bento-spec-chip">{item.spec}</span>
               </div>
-            )}
-
-            <div className="p-8">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                <item.icon className="text-primary group-hover:scale-110 transition-transform" size={24} />
-              </div>
-              <h3 className="text-lg font-bold text-foreground mb-2">{item.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
             </div>
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-
-    <div className="absolute bottom-0 left-0 right-0 glow-divider" />
-  </section>
-);
+    </section>
+  );
+};
 
 export default TechBento;

@@ -1,88 +1,250 @@
-import { motion } from "framer-motion";
-import { ArrowRight, PhoneCall } from "lucide-react";
-import heroImg from "@/assets/hero-solar.jpg";
-import { SunRays, LightParticles, LightBeams, MouseGlow } from "./LightEffects";
+"use client";
 
-const HeroSection = () => (
-  <section className="relative min-h-screen flex items-center overflow-hidden">
-    {/* Background image */}
-    <div className="absolute inset-0">
-      <img
-        src={heroImg}
-        alt="Casa moderna com painéis solares"
-        width={1920}
-        height={1080}
-        className="w-full h-full object-cover"
-      />
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-    </div>
+import { useRef } from "react";
+import Image from "next/image";
+import { ArrowRight, PhoneCall, ChevronDown, Zap, Users, Award } from "lucide-react";
+import { gsap, useGSAP, MOTION_EASE, MOTION_MEDIA } from "@/lib/gsap";
+import { scrollToAnchor } from "@/lib/lenis";
+import { SunRays, LightParticles } from "./LightEffects";
+import { images } from "@/lib/images";
+import { InteractiveTitle } from "@/components/motion/InteractiveTitle";
 
-    {/* Light effects layer */}
-    <SunRays className="top-10 right-[15%] opacity-40 hidden lg:block" />
-    <LightParticles count={15} className="z-[1]" />
-    <LightBeams className="z-[1]" />
-    <MouseGlow className="z-[1] hidden md:block" />
+const heroMetrics = [
+  { icon: Zap, value: "500+", label: "Projetos", detail: "Residenciais e comerciais" },
+  { icon: Users, value: "12 MW", label: "Instalados", detail: "Capacidade em operação" },
+  { icon: Award, value: "98%", label: "Satisfação", detail: "NPS médio dos clientes" },
+];
 
-    <div className="container relative z-10 mx-auto px-4 lg:px-8 pt-32 pb-20">
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="max-w-2xl"
+const HeroSection = () => {
+  const scope = useRef<HTMLElement>(null);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        {
+          isDesktop: MOTION_MEDIA.desktop,
+          reduceMotion: MOTION_MEDIA.reduceMotion,
+        },
+        (context) => {
+          const { isDesktop, reduceMotion } = context.conditions ?? {};
+          const root = scope.current;
+          if (!root) return;
+
+          const q = gsap.utils.selector(root);
+
+          if (reduceMotion) {
+            gsap.set(q("[data-hero]"), { autoAlpha: 1, y: 0, clearProps: "transform" });
+            return;
+          }
+
+          const entrance = gsap.timeline({ defaults: { ease: MOTION_EASE.entrance } });
+
+          entrance
+            .fromTo(
+              q("[data-hero='frame']"),
+              { autoAlpha: 0, scale: 0.98 },
+              { autoAlpha: 1, scale: 1, duration: 0.8, immediateRender: false },
+            )
+            .fromTo(
+              q("[data-hero='badge']"),
+              { autoAlpha: 0, y: 16 },
+              { autoAlpha: 1, y: 0, duration: 0.6, immediateRender: false },
+              0.08,
+            )
+            .fromTo(
+              q("[data-hero='line-inner']"),
+              { yPercent: 110, autoAlpha: 0 },
+              { yPercent: 0, autoAlpha: 1, duration: 0.85, stagger: 0.09, immediateRender: false },
+              0.18,
+            )
+            .fromTo(
+              q("[data-hero='subtitle']"),
+              { autoAlpha: 0, y: 20 },
+              { autoAlpha: 1, y: 0, duration: 0.65, immediateRender: false },
+              0.38,
+            )
+            .fromTo(
+              q("[data-hero='actions'] > *"),
+              { autoAlpha: 0, y: 18, scale: 0.96 },
+              { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: MOTION_EASE.cta, immediateRender: false },
+              0.48,
+            )
+            .fromTo(
+              q("[data-hero='divider']"),
+              { scaleX: 0, autoAlpha: 0 },
+              { scaleX: 1, autoAlpha: 1, duration: 0.7, ease: "power2.inOut", immediateRender: false },
+              0.58,
+            )
+            .fromTo(
+              q("[data-hero='metric']"),
+              { autoAlpha: 0, y: 24, scale: 0.94 },
+              { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.2)", immediateRender: false },
+              0.65,
+            )
+            .fromTo(
+              q("[data-hero='scroll-hint']"),
+              { autoAlpha: 0 },
+              { autoAlpha: 1, duration: 0.4, immediateRender: false },
+              0.9,
+            );
+
+          gsap.to(q("[data-hero='scroll-hint']"), {
+            y: 6,
+            repeat: -1,
+            yoyo: true,
+            duration: 1.2,
+            ease: "sine.inOut",
+            delay: 1.2,
+          });
+
+          if (isDesktop) {
+            gsap.to(q("[data-hero='media-inner']"), {
+              scale: 1.06,
+              ease: "none",
+              scrollTrigger: { trigger: root, start: "top top", end: "bottom top", scrub: 1 },
+            });
+          }
+        },
+        scope,
+      );
+
+      return () => mm.revert();
+    },
+    { scope },
+  );
+
+  return (
+    <section
+      ref={scope}
+      className="hero-section relative flex items-start sm:items-center justify-center overflow-hidden"
+      data-motion
+    >
+      <div data-hero="media" className="absolute inset-0">
+        <div data-hero="media-inner" className="absolute inset-0 will-change-transform">
+          <Image
+            src={images.hero}
+            alt="Residência moderna com painéis solares no telhado"
+            fill
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+            className="object-cover object-center"
+          />
+        </div>
+        <div className="hero-overlay-radial absolute inset-0 pointer-events-none" />
+        <div className="hero-overlay-vignette absolute inset-0 pointer-events-none" />
+        <div className="hero-overlay-top absolute inset-0 pointer-events-none" />
+        <div className="hero-tech-grid absolute inset-0 pointer-events-none" aria-hidden />
+      </div>
+
+      <div data-hero="rays" className="pointer-events-none">
+        <SunRays className="top-8 left-1/2 -translate-x-1/2 opacity-30 hidden lg:block scale-75" />
+      </div>
+      <LightParticles count={12} className="z-[1] opacity-55 sm:opacity-70" />
+
+      <div className="hero-corner hero-corner-tl" aria-hidden />
+      <div className="hero-corner hero-corner-tr" aria-hidden />
+      <div className="hero-corner hero-corner-bl" aria-hidden />
+      <div className="hero-corner hero-corner-br" aria-hidden />
+
+      <div className="container relative z-10 mx-auto px-4 lg:px-8 w-full">
+        <div data-hero="frame" className="hero-stage mx-auto flex flex-col items-center text-center will-change-transform">
+          <div className="hero-eyebrow-row">
+            <span className="hero-hud-line" aria-hidden />
+            <span data-hero="badge" className="hero-badge-premium">
+              <span className="hero-badge-dot" />
+              Engenharia Fotovoltaica de Elite
+            </span>
+            <span className="hero-hud-line" aria-hidden />
+          </div>
+
+          <InteractiveTitle
+            as="h1"
+            className="hero-title text-display text-foreground text-[1.75rem] leading-[1.14] sm:text-5xl sm:leading-tight md:text-6xl lg:text-[4.25rem] xl:text-7xl"
+          >
+            <span className="line-mask block" data-hero="line">
+              <span className="line-inner" data-hero="line-inner">
+                Transforme o Sol em um
+              </span>
+            </span>
+            <span className="line-mask block" data-hero="line">
+              <span className="line-inner" data-hero="line-inner">
+                <span className="text-gradient-amber text-glow-amber">Ativo Financeiro</span> de Alta
+              </span>
+            </span>
+            <span className="line-mask block" data-hero="line">
+              <span className="line-inner" data-hero="line-inner">
+                Rentabilidade.
+              </span>
+            </span>
+          </InteractiveTitle>
+
+          <p
+            data-hero="subtitle"
+            className="hero-subtitle text-pretty"
+          >
+            <span className="hero-subtitle-accent">Independência energética</span>, proteção contra{" "}
+            <span className="hero-subtitle-accent">inflação tarifária</span> e{" "}
+            <span className="hero-subtitle-accent">valorização imediata</span> do seu imóvel.
+          </p>
+
+          <div data-hero="actions" className="hero-actions">
+            <a
+              href="#calculadora"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToAnchor("#calculadora", -88);
+              }}
+              className="hero-action-btn btn-primary-premium px-5 py-3 sm:px-7 sm:py-4 rounded-lg font-bold text-sm sm:text-base text-primary-foreground glow-amber-strong w-full sm:w-auto"
+            >
+              Simular Economia
+              <ArrowRight size={18} />
+            </a>
+            <a
+              href="#contato"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToAnchor("#contato", -88);
+              }}
+              className="hero-action-btn btn-ghost-premium px-5 py-3 sm:px-7 sm:py-4 rounded-lg font-semibold text-sm sm:text-base text-foreground w-full sm:w-auto"
+            >
+              <PhoneCall size={18} />
+              Falar com Engenheiro
+            </a>
+          </div>
+
+          <div data-hero="divider" className="hero-tech-divider origin-center hidden sm:flex" aria-hidden>
+            <span className="hero-tech-divider-line" />
+            <span className="hero-tech-divider-node" />
+            <span className="hero-tech-divider-line" />
+          </div>
+
+          <div data-hero="metrics" className="hero-metrics-shell">
+            {heroMetrics.map((m, i) => (
+              <div key={i} data-hero="metric" className="hero-metric-card" tabIndex={0}>
+                <div className="hero-metric-icon">
+                  <m.icon size={16} className="text-primary m-auto" />
+                </div>
+                <span className="hero-metric-value">{m.value}</span>
+                <span className="hero-metric-label">{m.label}</span>
+                <span className="hero-metric-detail">{m.detail}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div
+        data-hero="scroll-hint"
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 hidden sm:flex flex-col items-center gap-1 text-muted-foreground/60"
       >
-        <motion.span
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="inline-block px-4 py-1.5 rounded-full glass-panel text-xs font-semibold text-primary tracking-widest uppercase mb-6"
-        >
-          Engenharia Fotovoltaica de Elite
-        </motion.span>
-
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight text-foreground mb-6">
-          Transforme o Sol em um{" "}
-          <span className="text-gradient-amber">Ativo Financeiro</span> de Alta
-          Rentabilidade.
-        </h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="text-lg text-muted-foreground max-w-xl mb-10 leading-relaxed"
-        >
-          Conquiste sua independência energética, blinde-se contra a inflação
-          tarifária e valorize seu imóvel imediatamente com tecnologia de ponta.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-          className="flex flex-col sm:flex-row gap-4"
-        >
-          <a
-            href="#calculadora"
-            className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base glow-amber hover:brightness-110 transition-all group"
-          >
-            Simular Economia
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </a>
-          <a
-            href="#contato"
-            className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl glass-panel font-semibold text-base text-foreground hover:bg-[hsl(220_40%_100%/0.1)] transition-all"
-          >
-            <PhoneCall size={18} />
-            Falar com Engenheiro
-          </a>
-        </motion.div>
-      </motion.div>
-    </div>
-
-    {/* Bottom glow divider */}
-    <div className="absolute bottom-0 left-0 right-0 glow-divider" />
-  </section>
-);
+        <span className="text-[9px] uppercase tracking-[0.25em] font-medium">Scroll</span>
+        <ChevronDown size={16} className="text-primary/70" />
+      </div>
+    </section>
+  );
+};
 
 export default HeroSection;

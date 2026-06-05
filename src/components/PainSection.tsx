@@ -1,56 +1,96 @@
-import { motion } from "framer-motion";
+"use client";
+
 import { TrendingUp, AlertTriangle, DollarSign } from "lucide-react";
+import { useSectionSymphony } from "@/hooks/useSectionSymphony";
+import { cardHoverIn, cardHoverOut } from "@/lib/motion";
 import { LightParticles } from "./LightEffects";
+import { SectionHeader } from "./ui/SectionHeader";
 
 const stats = [
-  { icon: TrendingUp, value: "+72%", label: "Aumento tarifário nos últimos 5 anos" },
-  { icon: AlertTriangle, value: "R$ 0", label: "Retorno do que você paga à concessionária" },
-  { icon: DollarSign, value: "25 anos", label: "De economia com energia solar" },
+  {
+    icon: TrendingUp,
+    step: "01",
+    value: "+72%",
+    label: "Aumento tarifário nos últimos 5 anos",
+    detail: "A conta só sobe — e você não tem controle sobre isso.",
+    accent: "primary" as const,
+  },
+  {
+    icon: AlertTriangle,
+    step: "02",
+    value: "R$ 0",
+    label: "Retorno do que você paga à concessionária",
+    detail: "Cada real pago é custo, nunca investimento.",
+    accent: "primary" as const,
+  },
+  {
+    icon: DollarSign,
+    step: "03",
+    value: "25 anos",
+    label: "De economia com energia solar",
+    detail: "Depois do payback, são décadas de energia quase gratuita.",
+    accent: "emerald" as const,
+  },
 ];
 
-const PainSection = () => (
-  <section className="py-24 gradient-mesh relative overflow-hidden">
-    <LightParticles count={8} className="opacity-30" />
+const PainSection = () => {
+  const scope = useSectionSymphony<HTMLElement>({ preset: "scrub" });
 
-    <div className="container mx-auto px-4 lg:px-8 relative z-10">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-100px" }}
-        transition={{ duration: 0.7 }}
-        className="text-center max-w-3xl mx-auto mb-16"
-      >
-        <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-4">
-          Todo mês, você <span className="text-gradient-amber">aluga energia</span> e queima dinheiro.
-        </h2>
-        <p className="text-muted-foreground text-lg">
-          Está na hora de parar de financiar a concessionária e ser dono da sua própria usina de energia.
-        </p>
-      </motion.div>
+  return (
+    <section ref={scope} className="section-tight gradient-mesh relative overflow-hidden section-defer" data-motion>
+      <LightParticles count={8} className="opacity-30" />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((s, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.5, delay: i * 0.15 }}
-            whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-            className="glass-panel p-8 text-center group cursor-default"
-          >
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-              <s.icon className="text-primary" size={28} />
+      <div className="container mx-auto px-4 lg:px-8 relative z-10">
+        <div data-symphony="heading">
+          <SectionHeader
+            eyebrow="O problema"
+            title={
+              <>
+                Todo mês, você <span className="text-gradient-amber">aluga energia</span> e queima dinheiro.
+              </>
+            }
+            description="Está na hora de parar de financiar a concessionária e ser dono da sua própria usina de energia."
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 max-w-5xl mx-auto">
+          {stats.map((s, i) => (
+            <div
+              key={i}
+              data-symphony="item"
+              className="pain-stat-card"
+              tabIndex={0}
+              onMouseEnter={(e) => cardHoverIn(e.currentTarget, "[data-card-icon]")}
+              onMouseLeave={(e) => cardHoverOut(e.currentTarget, "[data-card-icon]")}
+              onFocus={(e) => cardHoverIn(e.currentTarget, "[data-card-icon]")}
+              onBlur={(e) => cardHoverOut(e.currentTarget, "[data-card-icon]")}
+            >
+              <div className="surface-accent-top" aria-hidden />
+              <span
+                className={`surface-watermark ${s.accent === "emerald" ? "card-watermark-emerald" : "card-watermark-amber"}`}
+              >
+                {s.step}
+              </span>
+
+              <div
+                data-card-icon
+                className={`surface-icon mx-auto ${s.accent === "emerald" ? "surface-icon-emerald" : ""}`}
+              >
+                <s.icon className={s.accent === "emerald" ? "text-secondary" : "text-primary"} size={24} />
+              </div>
+
+              <p className="surface-label text-primary">Impacto {s.step}</p>
+              <div className="pain-stat-value">{s.value}</div>
+              <p className="surface-desc">{s.label}</p>
+              <p className={`surface-detail ${s.accent === "emerald" ? "text-secondary/80" : "text-primary/80"}`}>
+                {s.detail}
+              </p>
             </div>
-            <div className="text-3xl font-extrabold text-foreground mb-2">{s.value}</div>
-            <p className="text-sm text-muted-foreground">{s.label}</p>
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-
-    <div className="absolute bottom-0 left-0 right-0 glow-divider" />
-  </section>
-);
+    </section>
+  );
+};
 
 export default PainSection;

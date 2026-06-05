@@ -1,121 +1,182 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, useSpring, useTransform } from "framer-motion";
-import { Zap, TreePine, Leaf, TrendingUp } from "lucide-react";
+"use client";
 
-function AnimatedNumber({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
-  const spring = useSpring(0, { stiffness: 80, damping: 20 });
-  const display = useTransform(spring, (v) =>
-    `${prefix}${Math.round(v).toLocaleString("pt-BR")}${suffix}`
-  );
-  const ref = useRef<HTMLSpanElement>(null);
+import { useState, useMemo } from "react";
+import { Zap, TreePine, Leaf, TrendingUp, ArrowRight, Gauge, Clock, Sun } from "lucide-react";
+import { useSectionSymphony } from "@/hooks/useSectionSymphony";
+import { scrollToAnchor } from "@/lib/lenis";
+import { AnimatedNumber } from "./AnimatedNumber";
+import { SectionHeader } from "./ui/SectionHeader";
 
-  useEffect(() => {
-    spring.set(value);
-  }, [value, spring]);
-
-  useEffect(() => {
-    const unsub = display.on("change", (v) => {
-      if (ref.current) ref.current.textContent = v;
-    });
-    return unsub;
-  }, [display]);
-
-  return <span ref={ref}>{`${prefix}0${suffix}`}</span>;
-}
+const PRESETS = [500, 800, 1500, 2500, 5000] as const;
 
 const ROICalculator = () => {
+  const scope = useSectionSymphony<HTMLElement>({ preset: "panel" });
   const [bill, setBill] = useState(800);
 
-  const monthlySavings = Math.round(bill * 0.95);
-  const roi25Years = Math.round(monthlySavings * 12 * 25);
-  const treesSaved = Math.round((bill / 100) * 3.2);
-  const co2Avoided = Math.round((bill / 100) * 0.85 * 12);
+  const metrics = useMemo(() => {
+    const monthlySavings = Math.round(bill * 0.95);
+    const annualSavings = monthlySavings * 12;
+    const roi25Years = Math.round(annualSavings * 25);
+    const treesSaved = Math.round((bill / 100) * 3.2);
+    const co2Avoided = Math.round((bill / 100) * 0.85 * 12);
+    const systemKwp = Math.round((bill / 110) * 10) / 10;
+    const estimatedInvestment = Math.round(bill * 58);
+    const paybackYears =
+      annualSavings > 0 ? Math.round((estimatedInvestment / annualSavings) * 10) / 10 : 0;
+
+    return {
+      monthlySavings,
+      annualSavings,
+      roi25Years,
+      treesSaved,
+      co2Avoided,
+      systemKwp,
+      estimatedInvestment,
+      paybackYears,
+    };
+  }, [bill]);
 
   const results = [
-    { icon: Zap, label: "Economia Mensal", value: monthlySavings, prefix: "R$ ", color: "text-primary" },
-    { icon: TrendingUp, label: "Retorno em 25 Anos", value: roi25Years, prefix: "R$ ", color: "text-secondary" },
-    { icon: TreePine, label: "Árvores Salvas/Ano", value: treesSaved, suffix: "", color: "text-secondary" },
-    { icon: Leaf, label: "Toneladas CO₂ Evitadas/Ano", value: co2Avoided, suffix: " t", color: "text-secondary" },
+    { icon: Zap, label: "Economia Mensal", value: metrics.monthlySavings, prefix: "R$ ", color: "text-primary", accent: "roi-accent-amber" },
+    { icon: TrendingUp, label: "Retorno em 25 Anos", value: metrics.roi25Years, prefix: "R$ ", color: "text-secondary", accent: "roi-accent-emerald" },
+    { icon: TreePine, label: "Árvores Salvas/Ano", value: metrics.treesSaved, prefix: "", color: "text-secondary", accent: "roi-accent-emerald" },
+    { icon: Leaf, label: "CO₂ Evitadas/Ano", value: metrics.co2Avoided, prefix: "", suffix: " t", color: "text-secondary", accent: "roi-accent-emerald" },
   ];
 
+  const fillPercent = ((bill - 300) / 9700) * 100;
+
   return (
-    <section id="calculadora" className="py-24 gradient-mesh-strong">
-      <div className="container mx-auto px-4 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl mx-auto mb-12"
-        >
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground mb-4">
-            Simulador de <span className="text-gradient-amber">Retorno Financeiro</span>
-          </h2>
-          <p className="text-muted-foreground">
-            Descubra quanto você pode economizar com energia solar. Mova o controle e veja os números em tempo real.
-          </p>
-        </motion.div>
+    <section id="calculadora" ref={scope} className="section-tight relative overflow-hidden section-defer" data-motion>
+      <div className="absolute inset-0 gradient-mesh-strong pointer-events-none" />
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="max-w-4xl mx-auto glass-panel p-8 sm:p-12 glow-amber"
-        >
-          {/* Slider */}
-          <div className="mb-10">
-            <label className="block text-sm font-semibold text-muted-foreground mb-3">
-              Sua conta de luz atual
-            </label>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground whitespace-nowrap">R$ 300</span>
-              <input
-                type="range"
-                min={300}
-                max={10000}
-                step={50}
-                value={bill}
-                onChange={(e) => setBill(Number(e.target.value))}
-                className="flex-1 h-2 rounded-full appearance-none cursor-pointer
-                  [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:cursor-pointer
-                  [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, hsl(38 92% 50%) 0%, hsl(38 92% 50%) ${((bill - 300) / 9700) * 100}%, hsl(220 30% 15%) ${((bill - 300) / 9700) * 100}%, hsl(220 30% 15%) 100%)`,
-                }}
-              />
-              <span className="text-sm text-muted-foreground whitespace-nowrap">R$ 10.000</span>
-            </div>
-            <div className="mt-3 text-center">
-              <span className="text-3xl font-extrabold text-foreground">
-                R$ {bill.toLocaleString("pt-BR")}
-              </span>
-              <span className="text-muted-foreground text-sm ml-2">/mês</span>
-            </div>
-          </div>
+      <div className="container mx-auto px-4 lg:px-8 relative z-10">
+        <div data-symphony="heading">
+          <SectionHeader
+            eyebrow="Simulador"
+            title={
+              <>
+                Simulador de <span className="text-gradient-amber">Retorno Financeiro</span>
+              </>
+            }
+            description="Ajuste sua conta de luz e veja economia, payback e impacto ambiental em tempo real."
+          />
+        </div>
 
-          {/* Results grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {results.map((r, i) => (
-              <div key={i} className="glass-panel p-6 text-center">
-                <r.icon className={`mx-auto mb-3 ${r.color}`} size={28} />
-                <div className={`text-2xl sm:text-3xl font-extrabold ${r.color} mb-1`}>
-                  <AnimatedNumber value={r.value} prefix={r.prefix || ""} suffix={r.suffix || ""} />
+        <div data-symphony="panel" className="roi-calculator-shell">
+          <div className="roi-calculator-grid">
+            {/* Controls */}
+            <div className="roi-calculator-controls">
+              <div className="roi-display-panel">
+                <p className="roi-display-label">Sua conta de luz atual</p>
+                <div className="roi-display-value">
+                  <span className="roi-currency">R$</span>
+                  <span className="roi-amount tabular-nums">{bill.toLocaleString("pt-BR")}</span>
+                  <span className="roi-period">/mês</span>
                 </div>
-                <p className="text-xs text-muted-foreground font-medium">{r.label}</p>
               </div>
-            ))}
+
+              <div className="roi-slider-block">
+                <div className="roi-slider-track-wrap">
+                  <div className="roi-slider-fill" style={{ width: `${fillPercent}%` }} />
+                  <input
+                    id="bill-slider"
+                    type="range"
+                    min={300}
+                    max={10000}
+                    step={50}
+                    value={bill}
+                    onChange={(e) => setBill(Number(e.target.value))}
+                    className="roi-slider-input"
+                    aria-valuemin={300}
+                    aria-valuemax={10000}
+                    aria-valuenow={bill}
+                    aria-label="Valor da conta de luz em reais"
+                  />
+                </div>
+                <div className="roi-slider-labels">
+                  <span>R$ 300</span>
+                  <span>R$ 10.000</span>
+                </div>
+              </div>
+
+              <div className="roi-presets">
+                <span className="roi-presets-label">Atalhos rápidos</span>
+                <div className="roi-presets-row">
+                  {PRESETS.map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => setBill(preset)}
+                      className={`roi-preset-btn ${bill === preset ? "roi-preset-btn-active" : ""}`}
+                      aria-pressed={bill === preset}
+                    >
+                      R$ {preset.toLocaleString("pt-BR")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="roi-meta-row">
+                <div className="roi-meta-chip">
+                  <Gauge size={16} className="text-primary" />
+                  <div>
+                    <p className="roi-meta-label">Sistema estimado</p>
+                    <p className="roi-meta-value tabular-nums">
+                      <AnimatedNumber value={metrics.systemKwp} suffix=" kWp" duration={0.4} decimals={1} />
+                    </p>
+                  </div>
+                </div>
+                <div className="roi-meta-chip">
+                  <Clock size={16} className="text-secondary" />
+                  <div>
+                    <p className="roi-meta-label">Payback estimado</p>
+                    <p className="roi-meta-value tabular-nums">
+                      <AnimatedNumber value={metrics.paybackYears} suffix=" anos" duration={0.4} decimals={1} />
+                    </p>
+                  </div>
+                </div>
+                <div className="roi-meta-chip">
+                  <Sun size={16} className="text-primary" />
+                  <div>
+                    <p className="roi-meta-label">Investimento estimado</p>
+                    <p className="roi-meta-value tabular-nums">
+                      <AnimatedNumber value={metrics.estimatedInvestment} prefix="R$ " duration={0.4} />
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Results */}
+            <div className="roi-results-grid">
+              {results.map((r, i) => (
+                <div key={i} data-symphony="result" className={`roi-result-card ${r.accent}`}>
+                  <div className="roi-result-icon">
+                    <r.icon className={r.color} size={20} strokeWidth={1.75} />
+                  </div>
+                  <div className={`roi-result-value ${r.color}`}>
+                    <AnimatedNumber value={r.value} prefix={r.prefix || ""} suffix={r.suffix || ""} />
+                  </div>
+                  <p className="roi-result-label">{r.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="mt-8 text-center">
+          <div className="roi-cta-row">
             <a
               href="#contato"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-bold text-base glow-amber hover:brightness-110 transition-all"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToAnchor("#contato", -88);
+              }}
+              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-xl btn-primary-premium font-bold text-base text-primary-foreground"
             >
               Quero Esse Retorno
+              <ArrowRight size={18} />
             </a>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

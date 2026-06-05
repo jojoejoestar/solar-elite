@@ -1,0 +1,33 @@
+---
+description: Padrões GSAP oficiais para animações cinema no Solar Elite (Next.js + useGSAP + ScrollTrigger)
+globs: src/**/*.{tsx,ts}
+alwaysApply: false
+---
+
+# GSAP Motion — Solar Elite
+
+Este projeto usa **GSAP oficial** com skills instaladas em `.cursor/skills/`.
+
+## Skills disponíveis (invocar com /nome)
+
+- `/gsap-core` — tweens, easing, stagger, matchMedia
+- `/gsap-timeline` — sequências e choreografia
+- `/gsap-scrolltrigger` — pin, scrub, parallax
+- `/gsap-react` — useGSAP, scope, cleanup SSR
+- `/gsap-performance` — 60fps, transforms
+- `/gsap-plugins` — SplitText, Flip, ScrollSmoother
+- `/gsap-utils` — clamp, mapRange, snap
+- `/gsap-frameworks` — Vue/Svelte (não usar aqui)
+
+## Regras do projeto
+
+- Stack: Next.js 16 + `@gsap/react` + `ScrollTrigger`
+- Registro central: `src/lib/gsap.ts`
+- Todo componente animado: `"use client"` + `useGSAP` + `scope` ref
+- Preferir `autoAlpha`, `x`, `y`, `scale` — nunca `width`/`height`
+- Respeitar `prefers-reduced-motion` via `gsap.matchMedia()`
+- Nunca executar GSAP durante SSR
+
+## Referência
+
+Plugin oficial: https://github.com/greensock/gsap-skills

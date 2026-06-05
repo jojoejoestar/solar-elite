@@ -1,11 +1,8 @@
-import { useEffect, useRef, useCallback } from "react";
+"use client";
 
-/**
- * Pure CSS + minimal JS light effects for solar theme.
- * All animations use CSS transforms/opacity (GPU-composited) for 95+ performance.
- */
+import { useEffect, useRef, useMemo } from "react";
+import { gsap, useGSAP, MOTION_MEDIA } from "@/lib/gsap";
 
-/* Animated sun rays radiating from a point — pure CSS */
 export const SunRays = ({ className = "" }: { className?: string }) => (
   <div className={`pointer-events-none absolute ${className}`} aria-hidden="true">
     <div className="sun-rays-container">
@@ -23,80 +20,225 @@ export const SunRays = ({ className = "" }: { className?: string }) => (
   </div>
 );
 
-/* Floating light particles — pure CSS animated */
-export const LightParticles = ({ count = 20, className = "" }: { count?: number; className?: string }) => (
-  <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">
-    {[...Array(count)].map((_, i) => (
-      <div
-        key={i}
-        className="light-particle"
-        style={{
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          width: `${2 + Math.random() * 4}px`,
-          height: `${2 + Math.random() * 4}px`,
-          animationDelay: `${Math.random() * 8}s`,
-          animationDuration: `${6 + Math.random() * 8}s`,
-        }}
-      />
-    ))}
-  </div>
-);
+export const LightParticles = ({ count = 20, className = "" }: { count?: number; className?: string }) => {
+  const particles = useMemo(
+    () =>
+      Array.from({ length: count }, (_, i) => ({
+        id: i,
+        left: `${(i * 37 + 13) % 100}%`,
+        top: `${(i * 53 + 7) % 100}%`,
+        width: `${2 + (i % 4)}px`,
+        height: `${2 + ((i + 1) % 4)}px`,
+        animationDelay: `${(i * 0.7) % 8}s`,
+        animationDuration: `${6 + (i % 8)}s`,
+      })),
+    [count],
+  );
 
-/* Diagonal light beams sweeping across */
-export const LightBeams = ({ className = "" }: { className?: string }) => (
-  <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">
-    <div className="light-beam light-beam-1" />
-    <div className="light-beam light-beam-2" />
-    <div className="light-beam light-beam-3" />
-  </div>
-);
+  return (
+    <div className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="light-particle"
+          style={{
+            left: p.left,
+            top: p.top,
+            width: p.width,
+            height: p.height,
+            animationDelay: p.animationDelay,
+            animationDuration: p.animationDuration,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
-/* Interactive mouse-follow glow — uses requestAnimationFrame for smooth 60fps */
+export const LightBeams = ({
+  className = "",
+  parallax = true,
+}: {
+  className?: string;
+  parallax?: boolean;
+}) => {
+  const scope = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      if (!parallax) return;
+
+      const mm = gsap.matchMedia();
+      mm.add(
+        { reduceMotion: MOTION_MEDIA.reduceMotion },
+        (context) => {
+          if (context.conditions?.reduceMotion || !scope.current) return;
+
+          scope.current.querySelectorAll("[data-beam]").forEach((beam, i) => {
+            gsap.fromTo(
+              beam,
+              { yPercent: -8 - i * 4 },
+              {
+                yPercent: 8 + i * 4,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: scope.current,
+                  start: "top bottom",
+                  end: "bottom top",
+                  scrub: 1.2,
+                },
+              },
+            );
+          });
+        },
+        scope,
+      );
+
+      return () => mm.revert();
+    },
+    { scope },
+  );
+
+  return (
+    <div ref={scope} className={`pointer-events-none absolute inset-0 overflow-hidden ${className}`} aria-hidden="true">
+      <div data-beam className="light-beam light-beam-1 will-change-transform" />
+      <div data-beam className="light-beam light-beam-2 will-change-transform" />
+      <div data-beam className="light-beam light-beam-3 will-change-transform" />
+    </div>
+  );
+};
+
 export const MouseGlow = ({ className = "" }: { className?: string }) => {
   const glowRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef<number>(0);
-  const targetRef = useRef({ x: 0, y: 0 });
-  const currentRef = useRef({ x: 0, y: 0 });
+  const quickX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const quickY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
 
-  const animate = useCallback(() => {
-    currentRef.current.x += (targetRef.current.x - currentRef.current.x) * 0.08;
-    currentRef.current.y += (targetRef.current.y - currentRef.current.y) * 0.08;
-    if (glowRef.current) {
-      glowRef.current.style.transform = `translate(${currentRef.current.x}px, ${currentRef.current.y}px) translate(-50%, -50%)`;
-    }
-    rafRef.current = requestAnimationFrame(animate);
-  }, []);
+  useGSAP(
+    () => {
+      if (!glowRef.current) return;
+      gsap.set(glowRef.current, { xPercent: -50, yPercent: -50 });
+      quickX.current = gsap.quickTo(glowRef.current, "x", { duration: 0.75, ease: "power3.out" });
+      quickY.current = gsap.quickTo(glowRef.current, "y", { duration: 0.75, ease: "power3.out" });
+    },
+    { scope: glowRef },
+  );
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
       const rect = glowRef.current?.parentElement?.getBoundingClientRect();
-      if (rect) {
-        targetRef.current.x = e.clientX - rect.left;
-        targetRef.current.y = e.clientY - rect.top;
-      }
+      if (!rect || !quickX.current || !quickY.current) return;
+      quickX.current(e.clientX - rect.left);
+      quickY.current(e.clientY - rect.top);
     };
 
     window.addEventListener("mousemove", handleMove, { passive: true });
-    rafRef.current = requestAnimationFrame(animate);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, [animate]);
+    return () => window.removeEventListener("mousemove", handleMove);
+  }, []);
 
   return (
     <div
       ref={glowRef}
-      className={`pointer-events-none absolute w-[500px] h-[500px] rounded-full opacity-20 blur-[120px] will-change-transform ${className}`}
+      className={`pointer-events-none absolute left-0 top-0 w-[500px] h-[500px] rounded-full opacity-20 blur-[120px] will-change-transform ${className}`}
       style={{ background: "radial-gradient(circle, hsl(38 92% 50% / 0.4), transparent 70%)" }}
       aria-hidden="true"
     />
   );
 };
 
-/* Horizontal light streak — CSS only */
+/** Raios solares sutis que seguem o cursor em toda a página */
+export function CursorSunlight() {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const quickX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const quickY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
+  const activeRef = useRef(false);
+  const rayTween = useRef<gsap.core.Tween | null>(null);
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add(
+        {
+          reduceMotion: MOTION_MEDIA.reduceMotion,
+          finePointer: "(hover: hover) and (pointer: fine)",
+        },
+        (context) => {
+          const root = rootRef.current;
+          if (!root) return;
+
+          if (context.conditions?.reduceMotion || !context.conditions?.finePointer) {
+            gsap.set(root, { autoAlpha: 0, display: "none" });
+            return;
+          }
+
+          gsap.set(root, { xPercent: -50, yPercent: -50, autoAlpha: 0, display: "block" });
+          quickX.current = gsap.quickTo(root, "x", { duration: 1.05, ease: "power3.out" });
+          quickY.current = gsap.quickTo(root, "y", { duration: 1.05, ease: "power3.out" });
+
+          const rays = root.querySelector<HTMLElement>("[data-cursor-rays]");
+          if (rays) {
+            rayTween.current = gsap.to(rays, {
+              rotation: 360,
+              duration: 140,
+              repeat: -1,
+              ease: "none",
+            });
+          }
+        },
+        rootRef,
+      );
+
+      return () => {
+        rayTween.current?.kill();
+        mm.revert();
+      };
+    },
+    { scope: rootRef },
+  );
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    const isEnabled = () =>
+      window.matchMedia("(hover: hover) and (pointer: fine)").matches &&
+      !window.matchMedia(MOTION_MEDIA.reduceMotion).matches;
+
+    const onMove = (e: MouseEvent) => {
+      if (!isEnabled()) return;
+      quickX.current?.(e.clientX);
+      quickY.current?.(e.clientY);
+
+      if (!activeRef.current) {
+        activeRef.current = true;
+        gsap.to(root, { autoAlpha: 1, duration: 0.85, ease: "power2.out" });
+      }
+    };
+
+    const onLeave = () => {
+      activeRef.current = false;
+      gsap.to(root, { autoAlpha: 0, duration: 1, ease: "power2.out" });
+    };
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
+
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+    };
+  }, []);
+
+  return (
+    <div ref={rootRef} className="cursor-sunlight" aria-hidden="true">
+      <div className="cursor-sunlight-halo" />
+      <div className="cursor-sunlight-rays-fine" />
+      <div data-cursor-rays className="cursor-sunlight-rays will-change-transform" />
+      <div className="cursor-sunlight-core" />
+    </div>
+  );
+}
+
 export const LightStreak = ({ className = "" }: { className?: string }) => (
   <div className={`pointer-events-none absolute overflow-hidden ${className}`} aria-hidden="true">
     <div className="light-streak" />
