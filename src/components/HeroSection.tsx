@@ -35,17 +35,22 @@ const HeroSection = () => {
           const q = gsap.utils.selector(root);
 
           if (reduceMotion) {
-            gsap.set(q("[data-hero]"), { autoAlpha: 1, y: 0, clearProps: "transform" });
+            gsap.set(q("[data-hero]"), { autoAlpha: 1, y: 0, yPercent: 0, clearProps: "transform" });
             return;
           }
+
+          gsap.set(q("[data-hero='media'], [data-hero='line-inner'], [data-hero='frame']"), {
+            autoAlpha: 1,
+            clearProps: "visibility",
+          });
 
           const entrance = gsap.timeline({ defaults: { ease: MOTION_EASE.entrance } });
 
           entrance
             .fromTo(
               q("[data-hero='frame']"),
-              { autoAlpha: 0, scale: 0.98 },
-              { autoAlpha: 1, scale: 1, duration: 0.8, immediateRender: false },
+              { scale: 0.985 },
+              { scale: 1, duration: 0.8, immediateRender: false },
             )
             .fromTo(
               q("[data-hero='badge']"),
@@ -55,15 +60,15 @@ const HeroSection = () => {
             )
             .fromTo(
               q("[data-hero='line-inner']"),
-              { yPercent: 110, autoAlpha: 0 },
-              { yPercent: 0, autoAlpha: 1, duration: 0.85, stagger: 0.09, immediateRender: false },
-              0.18,
+              { yPercent: 110 },
+              { yPercent: 0, duration: 0.85, stagger: 0.09, immediateRender: false },
+              0.14,
             )
             .fromTo(
               q("[data-hero='subtitle']"),
-              { autoAlpha: 0, y: 20 },
-              { autoAlpha: 1, y: 0, duration: 0.65, immediateRender: false },
-              0.38,
+              { y: 14, autoAlpha: 0.72 },
+              { y: 0, autoAlpha: 1, duration: 0.65, immediateRender: false },
+              0.34,
             )
             .fromTo(
               q("[data-hero='actions'] > *"),
@@ -122,13 +127,14 @@ const HeroSection = () => {
       data-motion
     >
       <div data-hero="media" className="absolute inset-0">
-        <div data-hero="media-inner" className="absolute inset-0 will-change-transform">
+        <div data-hero="media-inner" className="absolute inset-0 md:will-change-transform">
           <Image
-            src={images.hero}
+            src={images.hero.src}
             alt="Residência moderna com painéis solares no telhado"
             fill
             priority
             fetchPriority="high"
+            quality={78}
             sizes="100vw"
             className="object-cover object-center"
           />
@@ -142,7 +148,8 @@ const HeroSection = () => {
       <div data-hero="rays" className="pointer-events-none">
         <SunRays className="top-8 left-1/2 -translate-x-1/2 opacity-30 hidden lg:block scale-75" />
       </div>
-      <LightParticles count={12} className="z-[1] opacity-55 sm:opacity-70" />
+      <LightParticles count={6} className="z-[1] opacity-45 sm:opacity-60 md:hidden" />
+      <LightParticles count={10} className="z-[1] opacity-55 sm:opacity-70 hidden md:block" />
 
       <div className="hero-corner hero-corner-tl" aria-hidden />
       <div className="hero-corner hero-corner-tr" aria-hidden />

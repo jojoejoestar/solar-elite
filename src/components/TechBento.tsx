@@ -90,7 +90,7 @@ const TechBento = () => {
               {item.image && (
                 <div className="bento-card-image">
                   <Image
-                    src={item.image}
+                    src={item.image.src}
                     alt={item.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"

@@ -1,33 +1,25 @@
-import heroSolar from "@/assets/hero-solar.jpg";
-import techPanel from "@/assets/tech-panel-detail.jpg";
-import techInstallation from "@/assets/tech-installation.jpg";
-import avatarRicardo from "@/assets/avatar-ricardo.jpg";
-import avatarFernanda from "@/assets/avatar-fernanda.jpg";
-import avatarPaulo from "@/assets/avatar-paulo.jpg";
-import projectRicardo from "@/assets/project-ricardo.jpg";
-import projectFernanda from "@/assets/project-fernanda.jpg";
-import projectPaulo from "@/assets/project-paulo.jpg";
-
-/** Official mark — WebP served from /public/images */
+/** Static paths — served from /public/images (cacheable, preload-friendly) */
 export const brandLogo = {
   src: "/images/logosolarelite.webp",
   width: 234,
   height: 249,
 } as const;
 
-/** Bundled assets from src/assets — same files as github.com/jojoejoestar/solar-elite main */
+const img = (path: string, width: number, height: number) =>
+  ({ src: path, width, height }) as const;
+
 export const images = {
-  hero: heroSolar,
-  techPanel,
-  techInstallation,
+  hero: img("/images/hero-solar.jpg", 1920, 1080),
+  techPanel: img("/images/tech-panel-detail.jpg", 1200, 800),
+  techInstallation: img("/images/tech-installation.jpg", 1200, 800),
   avatars: {
-    ricardo: avatarRicardo,
-    fernanda: avatarFernanda,
-    paulo: avatarPaulo,
+    ricardo: img("/images/avatar-ricardo.jpg", 96, 96),
+    fernanda: img("/images/avatar-fernanda.jpg", 96, 96),
+    paulo: img("/images/avatar-paulo.jpg", 96, 96),
   },
   projects: {
-    ricardo: projectRicardo,
-    fernanda: projectFernanda,
-    paulo: projectPaulo,
+    ricardo: img("/images/project-ricardo.jpg", 1200, 800),
+    fernanda: img("/images/project-fernanda.jpg", 1200, 800),
+    paulo: img("/images/project-paulo.jpg", 1200, 800),
   },
 } as const;

@@ -5,23 +5,26 @@ import "./globals.css";
 
 const ibmPlex = IBM_Plex_Sans({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-ibm-plex",
   display: "swap",
+  preload: true,
 });
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
   variable: "--font-space-grotesk",
   display: "swap",
   adjustFontFallback: true,
+  preload: true,
 });
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#0b1220",
 };
 
 export const metadata: Metadata = {
@@ -44,6 +47,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${ibmPlex.variable} ${spaceGrotesk.variable}`} suppressHydrationWarning>
+      <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/images/hero-solar.jpg"
+          fetchPriority="high"
+        />
+      </head>
       <body className="font-sans antialiased">
         <Providers>{children}</Providers>
       </body>

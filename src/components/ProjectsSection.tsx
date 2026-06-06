@@ -71,7 +71,7 @@ const ProjectsSection = () => {
 
               <div className={`project-image-wrap ${i % 2 === 1 ? "md:order-2" : ""}`}>
                 <Image
-                  src={t.project}
+                  src={t.project.src}
                   alt={`Projeto solar — ${t.name}`}
                   width={t.project.width}
                   height={t.project.height}
@@ -105,10 +105,10 @@ const ProjectsSection = () => {
 
                 <div className="project-author">
                   <Image
-                    src={t.avatar}
+                    src={t.avatar.src}
                     alt={t.name}
-                    width={48}
-                    height={48}
+                    width={t.avatar.width}
+                    height={t.avatar.height}
                     loading="lazy"
                     className="project-avatar"
                   />

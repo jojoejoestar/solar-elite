@@ -38,7 +38,7 @@ const PainSection = () => {
 
   return (
     <section ref={scope} className="section-tight gradient-mesh relative overflow-hidden section-defer" data-motion>
-      <LightParticles count={8} className="opacity-30" />
+      <LightParticles count={4} className="opacity-25 md:opacity-30" />
 
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div data-symphony="heading">

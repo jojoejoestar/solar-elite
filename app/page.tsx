@@ -1,28 +1,29 @@
+import dynamic from "next/dynamic";
 import SolarNav from "@/components/SolarNav";
 import { DeferredCursorSunlight } from "@/components/DeferredCursorSunlight";
-import { ScrollProgress } from "@/components/motion/ScrollProgress";
-import { PageScrollOrchestrator } from "@/components/motion/PageScrollOrchestrator";
-import { PageAtmosphere } from "@/components/PageAtmosphere";
+import { DeferredPageAtmosphere } from "@/components/DeferredPageAtmosphere";
+import { DeferredMotionExtras } from "@/components/DeferredMotionExtras";
 import HeroSection from "@/components/HeroSection";
 import TrustMarquee from "@/components/TrustMarquee";
-import PainSection from "@/components/PainSection";
-import ROICalculator from "@/components/ROICalculator";
-import TechBento from "@/components/TechBento";
-import ProcessSection from "@/components/ProcessSection";
-import ProjectsSection from "@/components/ProjectsSection";
-import GuaranteeSection from "@/components/GuaranteeSection";
-import FAQSection from "@/components/FAQSection";
-import CTASection from "@/components/CTASection";
-import SolarFooter from "@/components/SolarFooter";
 import { SectionDivider } from "@/components/ui/SectionDivider";
+
+const PainSection = dynamic(() => import("@/components/PainSection"));
+const ROICalculator = dynamic(() => import("@/components/ROICalculator"));
+const TechBento = dynamic(() => import("@/components/TechBento"));
+const ProcessSection = dynamic(() => import("@/components/ProcessSection"));
+const ProjectsSection = dynamic(() => import("@/components/ProjectsSection"));
+const GuaranteeSection = dynamic(() => import("@/components/GuaranteeSection"));
+const FAQSection = dynamic(() => import("@/components/FAQSection"));
+const CTASection = dynamic(() => import("@/components/CTASection"));
+const SolarFooter = dynamic(() => import("@/components/SolarFooter"));
 
 export default function HomePage() {
   return (
     <div className="relative min-h-screen bg-transparent overflow-x-hidden">
-      <PageAtmosphere />
+      <div className="page-static-backdrop" aria-hidden />
+      <DeferredPageAtmosphere />
       <DeferredCursorSunlight />
-      <PageScrollOrchestrator />
-      <ScrollProgress />
+      <DeferredMotionExtras />
       <SolarNav />
       <main className="relative z-[1]">
         <HeroSection />

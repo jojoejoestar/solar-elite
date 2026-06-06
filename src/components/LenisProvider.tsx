@@ -1,78 +1,123 @@
 "use client";
 
-import { useLayoutEffect } from "react";
-import Lenis from "lenis";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { useEffect, useState, type ReactNode } from "react";
 import { setLenis } from "@/lib/lenis";
 
-export function LenisProvider({ children }: { children: React.ReactNode }) {
-  useLayoutEffect(() => {
-    const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
-    const useSmooth = !coarsePointer;
+type LenisInstance = import("lenis").default;
 
-    const lenis = new Lenis({
-      lerp: coarsePointer ? 0.1 : 0.075,
-      smoothWheel: useSmooth,
-      syncTouch: false,
-      wheelMultiplier: 0.85,
-      touchMultiplier: 1,
-    });
+export function LenisProvider({ children }: { children: ReactNode }) {
+  const [ready, setReady] = useState(false);
 
-    document.documentElement.classList.add("lenis");
-    if (useSmooth) document.documentElement.classList.add("lenis-smooth");
-    setLenis(lenis);
+  useEffect(() => {
+    let lenis: LenisInstance | null = null;
+    let cancelled = false;
+    let lateRefresh = 0;
+    let lateUpdate = 0;
 
-    const getScrollTop = () =>
-      useSmooth ? lenis.scroll || document.documentElement.scrollTop : document.documentElement.scrollTop;
+    const init = async () => {
+      const [{ default: Lenis }, { gsap, ScrollTrigger }] = await Promise.all([
+        import("lenis"),
+        import("@/lib/gsap"),
+      ]);
 
-    const onScroll = () => ScrollTrigger.update();
-    lenis.on("scroll", onScroll);
-    window.addEventListener("scroll", onScroll, { passive: true });
+      if (cancelled) return;
 
-    const onTick = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-    gsap.ticker.add(onTick);
-    gsap.ticker.lagSmoothing(0);
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      const useSmooth = !coarsePointer;
 
-    if (useSmooth) {
-      ScrollTrigger.scrollerProxy(document.documentElement, {
-        scrollTop(value) {
-          if (arguments.length && typeof value === "number") {
-            lenis.scrollTo(value, { immediate: true });
-            return;
-          }
-          return getScrollTop();
-        },
-        getBoundingClientRect() {
-          return {
-            top: 0,
-            left: 0,
-            width: window.innerWidth,
-            height: window.innerHeight,
-          };
-        },
-        pinType: document.documentElement.style.transform ? "transform" : "fixed",
+      lenis = new Lenis({
+        lerp: coarsePointer ? 0.1 : 0.075,
+        smoothWheel: useSmooth,
+        syncTouch: false,
+        wheelMultiplier: 0.85,
+        touchMultiplier: 1,
       });
-    }
 
-    ScrollTrigger.defaults({ scroller: document.documentElement });
-    ScrollTrigger.refresh();
+      document.documentElement.classList.add("lenis");
+      if (useSmooth) document.documentElement.classList.add("lenis-smooth");
+      setLenis(lenis);
+      setReady(true);
 
-    const lateRefresh = window.setTimeout(() => ScrollTrigger.refresh(), 400);
-    const lateUpdate = window.setTimeout(() => ScrollTrigger.update(), 500);
+      const onScroll = () => ScrollTrigger.update();
+      lenis.on("scroll", onScroll);
+      window.addEventListener("scroll", onScroll, { passive: true });
 
-    return () => {
-      window.clearTimeout(lateRefresh);
-      window.clearTimeout(lateUpdate);
-      window.removeEventListener("scroll", onScroll);
+      const onTick = (time: number) => {
+        lenis?.raf(time * 1000);
+      };
+      gsap.ticker.add(onTick);
+      gsap.ticker.lagSmoothing(0);
+
+      if (useSmooth) {
+        ScrollTrigger.scrollerProxy(document.documentElement, {
+          scrollTop(value) {
+            if (arguments.length && typeof value === "number") {
+              lenis?.scrollTo(value, { immediate: true });
+              return;
+            }
+            return lenis?.scroll || document.documentElement.scrollTop;
+          },
+          getBoundingClientRect() {
+            return {
+              top: 0,
+              left: 0,
+              width: window.innerWidth,
+              height: window.innerHeight,
+            };
+          },
+          pinType: document.documentElement.style.transform ? "transform" : "fixed",
+        });
+      }
+
+      ScrollTrigger.defaults({ scroller: document.documentElement });
+      ScrollTrigger.refresh();
+
+      lateRefresh = window.setTimeout(() => ScrollTrigger.refresh(), 400);
+      lateUpdate = window.setTimeout(() => ScrollTrigger.update(), 500);
+
+      return () => {
+        window.clearTimeout(lateRefresh);
+        window.clearTimeout(lateUpdate);
+        window.removeEventListener("scroll", onScroll);
+        gsap.ticker.remove(onTick);
+      };
+    };
+
+    let cleanupInner: (() => void) | undefined;
+
+    const teardown = async () => {
+      cleanupInner?.();
+      const { ScrollTrigger } = await import("@/lib/gsap");
+      ScrollTrigger.scrollerProxy(document.documentElement, {});
       setLenis(null);
       document.documentElement.classList.remove("lenis", "lenis-smooth");
-      ScrollTrigger.scrollerProxy(document.documentElement, {});
-      gsap.ticker.remove(onTick);
-      lenis.destroy();
+      lenis?.destroy();
+    };
+
+    const boot = () => {
+      init().then((cleanup) => {
+        if (!cancelled) cleanupInner = cleanup;
+      });
+    };
+
+    const ric = window.requestIdleCallback;
+
+    if (ric) {
+      const id = ric(boot, { timeout: 1200 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(id);
+        void teardown();
+      };
+    }
+
+    const t = setTimeout(boot, 80);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+      void teardown();
     };
   }, []);
 
-  return <>{children}</>;
+  return <div className={ready ? "lenis-ready" : undefined}>{children}</div>;
 }

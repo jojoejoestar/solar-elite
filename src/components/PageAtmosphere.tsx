@@ -3,12 +3,17 @@
 import { useEffect, useState } from "react";
 import CybercoreBackground from "@/components/cybercore-section-hero";
 
+function getInitialBeamCount() {
+  if (typeof window === "undefined") return 14;
+  return window.matchMedia("(max-width: 767px), (pointer: coarse)").matches ? 14 : 42;
+}
+
 export function PageAtmosphere() {
-  const [beamCount, setBeamCount] = useState(65);
+  const [beamCount, setBeamCount] = useState(getInitialBeamCount);
 
   useEffect(() => {
     const coarse = window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
-    setBeamCount(coarse ? 28 : 65);
+    setBeamCount(coarse ? 14 : 42);
   }, []);
 
   return (
