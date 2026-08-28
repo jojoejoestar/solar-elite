@@ -6,7 +6,7 @@ import { useSectionSymphony } from "@/hooks/useSectionSymphony";
 import { cardHoverIn, cardHoverOut } from "@/lib/motion";
 import { gsap } from "@/lib/gsap";
 import { SectionHeader } from "./ui/SectionHeader";
-import { PROCESS_STEPS } from "@/data/content";
+import { useCopy } from "@/i18n/LocaleProvider";
 
 const icons = [ClipboardList, PenTool, HardHat, TrendingUp];
 
@@ -18,6 +18,7 @@ const watermarkClass = {
 
 export default function ProcessSection() {
   const [activeStep, setActiveStep] = useState<number | null>(null);
+  const { copy } = useCopy();
 
   const scope = useSectionSymphony<HTMLElement>({
     preset: "grid",
@@ -71,14 +72,16 @@ export default function ProcessSection() {
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div data-symphony="heading">
           <SectionHeader
-            eyebrow="Como funciona"
+            eyebrow={copy.process.eyebrow}
             align="left"
             title={
               <>
-                Do projeto ao <span className="text-gradient-emerald">lucro</span> em 4 etapas
+                {copy.process.titleBefore}
+                <span className="text-gradient-emerald">{copy.process.titleHighlight}</span>
+                {copy.process.titleAfter}
               </>
             }
-            description="Um processo transparente, conduzido por engenheiros, do diagnóstico ao retorno financeiro."
+            description={copy.process.description}
           />
         </div>
 
@@ -86,7 +89,7 @@ export default function ProcessSection() {
           <div data-symphony="connector" className="process-connector-v2 origin-left scale-x-0" aria-hidden />
 
           <div data-symphony="grid" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-6">
-            {PROCESS_STEPS.map((step, i) => {
+            {copy.process.steps.map((step, i) => {
               const Icon = icons[i];
               return (
                 <div
@@ -99,7 +102,7 @@ export default function ProcessSection() {
                   onBlur={(e) => onCardLeave(e.currentTarget)}
                   tabIndex={0}
                   role="article"
-                  aria-label={`Etapa ${step.step}: ${step.title}`}
+                  aria-label={copy.process.stepAria(step.step, step.title)}
                 >
                   <div data-symphony="node" className="process-step-node" aria-hidden>
                     <span className="process-step-node-inner" />
@@ -112,7 +115,7 @@ export default function ProcessSection() {
                     <Icon className="text-secondary" size={22} strokeWidth={1.75} />
                   </div>
 
-                  <p className="process-step-label">Etapa {step.step}</p>
+                  <p className="process-step-label">{copy.process.stepLabel} {step.step}</p>
                   <h3 className="process-step-title">{step.title}</h3>
                   <p className="process-step-desc">{step.desc}</p>
                   <p className="process-step-detail">{step.detail}</p>

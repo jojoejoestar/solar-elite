@@ -8,7 +8,7 @@ import { SunRays, LightParticles } from "./LightEffects";
 import { images } from "@/lib/images";
 import { InteractiveTitle } from "@/components/motion/InteractiveTitle";
 import { AnchorLink } from "@/components/AnchorLink";
-import { HERO_METRICS } from "@/data/content";
+import { useCopy } from "@/i18n/LocaleProvider";
 
 const metricIcons = {
   projects: Zap,
@@ -17,6 +17,7 @@ const metricIcons = {
 } as const;
 
 export default function HeroSection() {
+  const { copy } = useCopy();
   const scope = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -102,7 +103,7 @@ export default function HeroSection() {
         <div data-hero="media-inner" className="absolute inset-0 md:will-change-transform">
           <Image
             src={images.hero.src}
-            alt="Residência moderna com painéis solares no telhado"
+            alt={copy.hero.imageAlt}
             fill
             priority
             fetchPriority="high"
@@ -134,7 +135,7 @@ export default function HeroSection() {
             <span className="hero-hud-line" aria-hidden />
             <span data-hero="badge" className="hero-badge-premium">
               <span className="hero-badge-dot" />
-              Engenharia Fotovoltaica de Elite
+              {copy.hero.badge}
             </span>
             <span className="hero-hud-line" aria-hidden />
           </div>
@@ -145,25 +146,29 @@ export default function HeroSection() {
           >
             <span className="line-mask block" data-hero="line">
               <span className="line-inner" data-hero="line-inner">
-                Transforme o Sol em um
+                {copy.hero.line1}
               </span>
             </span>
             <span className="line-mask block" data-hero="line">
               <span className="line-inner" data-hero="line-inner">
-                <span className="text-gradient-amber text-glow-amber">Ativo Financeiro</span> de Alta
+                <span className="text-gradient-amber text-glow-amber">{copy.hero.line2Highlight}</span>
+                {copy.hero.line2After}
               </span>
             </span>
             <span className="line-mask block" data-hero="line">
               <span className="line-inner" data-hero="line-inner">
-                Rentabilidade.
+                {copy.hero.line3}
               </span>
             </span>
           </InteractiveTitle>
 
           <p data-hero="subtitle" className="hero-subtitle text-pretty">
-            <span className="hero-subtitle-accent">Independência energética</span>, proteção contra{" "}
-            <span className="hero-subtitle-accent">inflação tarifária</span> e{" "}
-            <span className="hero-subtitle-accent">valorização imediata</span> do seu imóvel.
+            <span className="hero-subtitle-accent">{copy.hero.subtitleA1}</span>
+            {copy.hero.subtitleMid1}
+            <span className="hero-subtitle-accent">{copy.hero.subtitleA2}</span>
+            {copy.hero.subtitleMid2}
+            <span className="hero-subtitle-accent">{copy.hero.subtitleA3}</span>
+            {copy.hero.subtitleEnd}
           </p>
 
           <div data-hero="actions" className="hero-actions">
@@ -171,7 +176,7 @@ export default function HeroSection() {
               href="#calculadora"
               className="hero-action-btn btn-primary-premium px-5 py-3 sm:px-7 sm:py-4 rounded-lg font-bold text-sm sm:text-base text-primary-foreground glow-amber-strong w-full sm:w-auto"
             >
-              Simular Economia
+              {copy.hero.ctaPrimary}
               <ArrowRight size={18} />
             </AnchorLink>
             <AnchorLink
@@ -179,7 +184,7 @@ export default function HeroSection() {
               className="hero-action-btn btn-ghost-premium px-5 py-3 sm:px-7 sm:py-4 rounded-lg font-semibold text-sm sm:text-base text-foreground w-full sm:w-auto"
             >
               <PhoneCall size={18} />
-              Falar com Engenheiro
+              {copy.hero.ctaSecondary}
             </AnchorLink>
           </div>
 
@@ -190,7 +195,7 @@ export default function HeroSection() {
           </div>
 
           <div data-hero="metrics" className="hero-metrics-shell">
-            {HERO_METRICS.map((metric) => {
+            {copy.hero.metrics.map((metric) => {
               const Icon = metricIcons[metric.id];
               return (
                 <div key={metric.id} data-hero="metric" className="hero-metric-card" tabIndex={0}>

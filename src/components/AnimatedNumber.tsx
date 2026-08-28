@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { gsap, MOTION_MEDIA } from "@/lib/gsap";
+import { useCopy } from "@/i18n/LocaleProvider";
 
 type AnimatedNumberProps = {
   value: number;
@@ -11,19 +12,21 @@ type AnimatedNumberProps = {
   decimals?: number;
 };
 
-function formatValue(val: number, decimals: number) {
-  if (!Number.isFinite(val)) return decimals > 0 ? "0,0" : "0";
+function formatValue(val: number, decimals: number, locale: string) {
+  if (!Number.isFinite(val)) return decimals > 0 ? (0).toLocaleString(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) : "0";
   if (decimals > 0) {
-    return val.toLocaleString("pt-BR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    return val.toLocaleString(locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   }
-  return Math.round(val).toLocaleString("pt-BR");
+  return Math.round(val).toLocaleString(locale);
 }
 
 export function AnimatedNumber({ value, prefix = "", suffix = "", duration = 0.55, decimals = 0 }: AnimatedNumberProps) {
+  const { copy } = useCopy();
+  const locale = copy.intlLocale;
   const displayRef = useRef<HTMLSpanElement>(null);
   const prevValue = useRef(value);
   const tweenRef = useRef<gsap.core.Tween | null>(null);
-  const formatted = `${prefix}${formatValue(value, decimals)}${suffix}`;
+  const formatted = `${prefix}${formatValue(value, decimals, locale)}${suffix}`;
 
   useEffect(() => {
     const el = displayRef.current;
@@ -50,7 +53,7 @@ export function AnimatedNumber({ value, prefix = "", suffix = "", duration = 0.5
       duration,
       ease: "power2.out",
       onUpdate: () => {
-        el.textContent = `${prefix}${formatValue(counter.val, decimals)}${suffix}`;
+        el.textContent = `${prefix}${formatValue(counter.val, decimals, locale)}${suffix}`;
       },
       onComplete: () => {
         prevValue.current = value;
@@ -61,7 +64,7 @@ export function AnimatedNumber({ value, prefix = "", suffix = "", duration = 0.5
     return () => {
       tweenRef.current?.kill();
     };
-  }, [value, prefix, suffix, duration, decimals, formatted]);
+  }, [value, prefix, suffix, duration, decimals, formatted, locale]);
 
   return (
     <span className="tabular-nums">

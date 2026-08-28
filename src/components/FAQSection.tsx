@@ -5,24 +5,26 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { useSectionSymphony } from "@/hooks/useSectionSymphony";
 import { SectionHeader } from "./ui/SectionHeader";
 import { AnchorLink } from "@/components/AnchorLink";
-import { CONTACT, METRICS } from "@/data/site";
-import { FAQS } from "@/data/content";
+import { METRICS } from "@/data/site";
+import { useCopy } from "@/i18n/LocaleProvider";
 
 export default function FAQSection() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "split-faq" });
+  const { copy } = useCopy();
 
   return (
     <section id="faq" ref={scope} className="section-tight gradient-mesh relative overflow-hidden section-defer" data-motion>
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div data-symphony="heading">
           <SectionHeader
-            eyebrow="FAQ"
+            eyebrow={copy.faq.eyebrow}
             title={
               <>
-                Perguntas <span className="text-gradient-amber">Frequentes</span>
+                {copy.faq.titleBefore}
+                <span className="text-gradient-amber">{copy.faq.titleHighlight}</span>
               </>
             }
-            description="Tire suas dúvidas antes de dar o próximo passo rumo à independência energética."
+            description={copy.faq.description}
           />
         </div>
 
@@ -32,29 +34,27 @@ export default function FAQSection() {
               <div className="faq-aside-icon">
                 <MessageCircle size={22} className="text-primary" />
               </div>
-              <h3 className="faq-aside-title">Ainda com dúvidas?</h3>
-              <p className="faq-aside-desc">
-                Nossa equipe de engenheiros responde com clareza técnica e sem compromisso.
-              </p>
+              <h3 className="faq-aside-title">{copy.faq.asideTitle}</h3>
+              <p className="faq-aside-desc">{copy.faq.asideDesc}</p>
 
               <div className="faq-aside-stats">
                 <div className="faq-aside-stat">
                   <Clock size={14} className="text-primary shrink-0" />
                   <div>
-                    <p className="faq-aside-stat-value">{CONTACT.responseTime}</p>
-                    <p className="faq-aside-stat-label">Tempo de resposta</p>
+                    <p className="faq-aside-stat-value">{copy.faq.responseTime}</p>
+                    <p className="faq-aside-stat-label">{copy.faq.responseLabel}</p>
                   </div>
                 </div>
                 <div className="faq-aside-stat">
                   <div>
                     <p className="faq-aside-stat-value">{METRICS.projects.value}</p>
-                    <p className="faq-aside-stat-label">{METRICS.projects.footer}</p>
+                    <p className="faq-aside-stat-label">{copy.faq.projectsLabel}</p>
                   </div>
                 </div>
               </div>
 
               <AnchorLink href="#contato" className="faq-aside-cta">
-                Falar com especialista
+                {copy.faq.cta}
                 <ArrowRight size={16} />
               </AnchorLink>
             </div>
@@ -62,7 +62,7 @@ export default function FAQSection() {
 
           <div className="faq-panel">
             <Accordion type="single" collapsible className="faq-accordion-list">
-              {FAQS.map((faq, i) => (
+              {copy.faq.items.map((faq, i) => (
                 <AccordionItem key={faq.q} value={`faq-${i}`} data-symphony="item" className="faq-item border-none">
                   <AccordionTrigger className="faq-trigger-btn hover:no-underline">
                     <span className="faq-trigger">

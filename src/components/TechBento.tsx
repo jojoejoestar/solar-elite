@@ -5,12 +5,14 @@ import { Cpu, Smartphone, Wrench, Shield } from "lucide-react";
 import { useSectionSymphony } from "@/hooks/useSectionSymphony";
 import { liftHandlers } from "@/lib/motion";
 import { SectionHeader } from "./ui/SectionHeader";
-import { TECH_ITEMS } from "@/data/content";
+import { TECH_LAYOUT } from "@/data/content";
+import { useCopy } from "@/i18n/LocaleProvider";
 
 const icons = [Cpu, Shield, Smartphone, Wrench];
 
 export default function TechBento() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "grid" });
+  const { copy } = useCopy();
 
   return (
     <section id="tecnologia" ref={scope} className="section-tight relative overflow-hidden section-defer" data-motion>
@@ -19,35 +21,37 @@ export default function TechBento() {
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div data-symphony="heading">
           <SectionHeader
-            eyebrow="Stack tecnológico"
+            eyebrow={copy.tech.eyebrow}
             title={
               <>
-                Tecnologia que <span className="text-gradient-emerald">gera resultados</span>
+                {copy.tech.titleBefore}
+                <span className="text-gradient-emerald">{copy.tech.titleHighlight}</span>
               </>
             }
-            description="Componentes selecionados para maximizar retorno e longevidade do sistema."
+            description={copy.tech.description}
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-5 max-w-5xl mx-auto">
-          {TECH_ITEMS.map((item, i) => {
+          {copy.tech.items.map((item, i) => {
+            const layout = TECH_LAYOUT[i]!;
             const Icon = icons[i];
-            const secondary = item.accent === "secondary";
+            const secondary = layout.accent === "secondary";
             return (
-              <div key={item.title} data-symphony="item" className={`bento-card group ${item.span}`} {...liftHandlers()}>
+              <div key={item.title} data-symphony="item" className={`bento-card group ${layout.span}`} {...liftHandlers()}>
                 <div className="surface-accent-top" aria-hidden />
                 <div className="bento-shine" aria-hidden />
 
-                {item.image && (
+                {layout.image && (
                   <div className="bento-card-image">
                     <Image
-                      src={item.image.src}
+                      src={layout.image.src}
                       alt={item.title}
                       fill
                       sizes="(max-width: 768px) 100vw, 50vw"
                       loading="lazy"
                       className="object-cover transition-transform duration-700 group-hover:scale-105"
-                      style={{ objectPosition: item.imagePosition }}
+                      style={{ objectPosition: layout.imagePosition }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-[hsl(222,47%,7%)] via-[hsl(222,47%,7%)/0.4] to-transparent" />
                     <span className="bento-card-tag">{item.tag}</span>
@@ -55,7 +59,7 @@ export default function TechBento() {
                 )}
 
                 <div className="bento-card-body">
-                  {!item.image && <span className="bento-card-tag static mb-4 inline-block">{item.tag}</span>}
+                  {!layout.image && <span className="bento-card-tag static mb-4 inline-block">{item.tag}</span>}
 
                   <div data-card-icon className={`surface-icon mb-4 ${secondary ? "surface-icon-emerald" : ""}`}>
                     <Icon className={secondary ? "text-secondary" : "text-primary"} size={20} />

@@ -7,17 +7,21 @@ import { AnimatedNumber } from "./AnimatedNumber";
 import { SectionHeader } from "./ui/SectionHeader";
 import { AnchorLink } from "@/components/AnchorLink";
 import { billFillPercent, calculateRoi, ROI } from "@/lib/roi";
+import { useCopy } from "@/i18n/LocaleProvider";
 
 export default function ROICalculator() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "panel" });
+  const { copy } = useCopy();
   const [bill, setBill] = useState<number>(ROI.defaultBill);
   const metrics = useMemo(() => calculateRoi(bill), [bill]);
+  const locale = copy.intlLocale;
+  const money = (n: number) => n.toLocaleString(locale);
 
   const results = [
-    { icon: Zap, label: "Economia Mensal", value: metrics.monthlySavings, prefix: "R$ ", color: "text-primary", accent: "roi-accent-amber" },
-    { icon: TrendingUp, label: "Retorno em 25 Anos", value: metrics.roi25Years, prefix: "R$ ", color: "text-secondary", accent: "roi-accent-emerald" },
-    { icon: TreePine, label: "Árvores Salvas/Ano", value: metrics.treesSaved, prefix: "", color: "text-secondary", accent: "roi-accent-emerald" },
-    { icon: Leaf, label: "CO₂ Evitadas/Ano", value: metrics.co2Avoided, prefix: "", suffix: " t", color: "text-secondary", accent: "roi-accent-emerald" },
+    { icon: Zap, label: copy.roi.monthlySavings, value: metrics.monthlySavings, prefix: `${copy.roi.currency} `, color: "text-primary", accent: "roi-accent-amber" },
+    { icon: TrendingUp, label: copy.roi.return25, value: metrics.roi25Years, prefix: `${copy.roi.currency} `, color: "text-secondary", accent: "roi-accent-emerald" },
+    { icon: TreePine, label: copy.roi.treesSaved, value: metrics.treesSaved, prefix: "", color: "text-secondary", accent: "roi-accent-emerald" },
+    { icon: Leaf, label: copy.roi.co2Avoided, value: metrics.co2Avoided, prefix: "", suffix: " t", color: "text-secondary", accent: "roi-accent-emerald" },
   ];
 
   return (
@@ -27,13 +31,15 @@ export default function ROICalculator() {
       <div className="container mx-auto px-4 lg:px-8 relative z-10">
         <div data-symphony="heading">
           <SectionHeader
-            eyebrow="Simulador"
+            eyebrow={copy.roi.eyebrow}
             title={
               <>
-                Simulador de <span className="text-gradient-amber">Retorno Financeiro</span>
+                {copy.roi.titleBefore}
+                <span className="text-gradient-amber">{copy.roi.titleHighlight}</span>
+                {copy.roi.titleAfter}
               </>
             }
-            description="Ajuste sua conta de luz e veja economia, payback e impacto ambiental em tempo real."
+            description={copy.roi.description}
           />
         </div>
 
@@ -41,11 +47,11 @@ export default function ROICalculator() {
           <div className="roi-calculator-grid">
             <div className="roi-calculator-controls">
               <div className="roi-display-panel">
-                <p className="roi-display-label">Sua conta de luz atual</p>
+                <p className="roi-display-label">{copy.roi.currentBill}</p>
                 <div className="roi-display-value">
-                  <span className="roi-currency">R$</span>
-                  <span className="roi-amount tabular-nums">{bill.toLocaleString("pt-BR")}</span>
-                  <span className="roi-period">/mês</span>
+                  <span className="roi-currency">{copy.roi.currency}</span>
+                  <span className="roi-amount tabular-nums">{money(bill)}</span>
+                  <span className="roi-period">{copy.roi.perMonth}</span>
                 </div>
               </div>
 
@@ -64,17 +70,21 @@ export default function ROICalculator() {
                     aria-valuemin={ROI.minBill}
                     aria-valuemax={ROI.maxBill}
                     aria-valuenow={bill}
-                    aria-label="Valor da conta de luz em reais"
+                    aria-label={copy.roi.billAria}
                   />
                 </div>
                 <div className="roi-slider-labels">
-                  <span>R$ {ROI.minBill.toLocaleString("pt-BR")}</span>
-                  <span>R$ {ROI.maxBill.toLocaleString("pt-BR")}</span>
+                  <span>
+                    {copy.roi.currency} {money(ROI.minBill)}
+                  </span>
+                  <span>
+                    {copy.roi.currency} {money(ROI.maxBill)}
+                  </span>
                 </div>
               </div>
 
               <div className="roi-presets">
-                <span className="roi-presets-label">Atalhos rápidos</span>
+                <span className="roi-presets-label">{copy.roi.shortcuts}</span>
                 <div className="roi-presets-row">
                   {ROI.presets.map((preset) => (
                     <button
@@ -84,7 +94,7 @@ export default function ROICalculator() {
                       className={`roi-preset-btn ${bill === preset ? "roi-preset-btn-active" : ""}`}
                       aria-pressed={bill === preset}
                     >
-                      R$ {preset.toLocaleString("pt-BR")}
+                      {copy.roi.currency} {money(preset)}
                     </button>
                   ))}
                 </div>
@@ -94,7 +104,7 @@ export default function ROICalculator() {
                 <div className="roi-meta-chip">
                   <Gauge size={16} className="text-primary" />
                   <div>
-                    <p className="roi-meta-label">Sistema estimado</p>
+                    <p className="roi-meta-label">{copy.roi.estimatedSystem}</p>
                     <p className="roi-meta-value tabular-nums">
                       <AnimatedNumber value={metrics.systemKwp} suffix=" kWp" duration={0.4} decimals={1} />
                     </p>
@@ -103,18 +113,18 @@ export default function ROICalculator() {
                 <div className="roi-meta-chip">
                   <Clock size={16} className="text-secondary" />
                   <div>
-                    <p className="roi-meta-label">Payback estimado</p>
+                    <p className="roi-meta-label">{copy.roi.estimatedPayback}</p>
                     <p className="roi-meta-value tabular-nums">
-                      <AnimatedNumber value={metrics.paybackYears} suffix=" anos" duration={0.4} decimals={1} />
+                      <AnimatedNumber value={metrics.paybackYears} suffix={copy.roi.yearsSuffix} duration={0.4} decimals={1} />
                     </p>
                   </div>
                 </div>
                 <div className="roi-meta-chip">
                   <Sun size={16} className="text-primary" />
                   <div>
-                    <p className="roi-meta-label">Investimento estimado</p>
+                    <p className="roi-meta-label">{copy.roi.estimatedInvestment}</p>
                     <p className="roi-meta-value tabular-nums">
-                      <AnimatedNumber value={metrics.estimatedInvestment} prefix="R$ " duration={0.4} />
+                      <AnimatedNumber value={metrics.estimatedInvestment} prefix={`${copy.roi.currency} `} duration={0.4} />
                     </p>
                   </div>
                 </div>
@@ -141,7 +151,7 @@ export default function ROICalculator() {
               href="#contato"
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-xl btn-primary-premium font-bold text-base text-primary-foreground"
             >
-              Quero Esse Retorno
+              {copy.roi.cta}
               <ArrowRight size={18} />
             </AnchorLink>
           </div>

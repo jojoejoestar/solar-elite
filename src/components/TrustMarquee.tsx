@@ -2,7 +2,7 @@
 
 import { Award, Shield, Zap, Leaf, Building2, BadgeCheck } from "lucide-react";
 import { useSectionSymphony } from "@/hooks/useSectionSymphony";
-import { TRUST_BADGES } from "@/data/content";
+import { useCopy } from "@/i18n/LocaleProvider";
 
 const icons = {
   tier1: Award,
@@ -15,7 +15,8 @@ const icons = {
 
 export default function TrustMarquee() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "entrance" });
-  const track = [...TRUST_BADGES, ...TRUST_BADGES];
+  const { copy } = useCopy();
+  const track = [...copy.trust, ...copy.trust];
 
   return (
     <section ref={scope} className="trust-marquee-shell section-defer" data-motion>

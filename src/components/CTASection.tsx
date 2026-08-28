@@ -5,7 +5,7 @@ import { Send, Shield, Clock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useSectionSymphony } from "@/hooks/useSectionSymphony";
 import { InteractiveTitle } from "@/components/motion/InteractiveTitle";
-import { CTA_TRUST } from "@/data/content";
+import { useCopy } from "@/i18n/LocaleProvider";
 
 const trustIcons = { shield: Shield, clock: Clock } as const;
 
@@ -13,11 +13,12 @@ const emptyForm = { nome: "", whatsapp: "", conta: "" };
 
 export default function CTASection() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "split-cta" });
+  const { copy } = useCopy();
   const [form, setForm] = useState(emptyForm);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    toast.success("Simulação enviada! Nossa equipe entrará em contato em breve.");
+    toast.success(copy.cta.toast);
     setForm(emptyForm);
   };
 
@@ -29,20 +30,21 @@ export default function CTASection() {
             <div data-symphony="copy" className="cta-copy">
               <div className="flex items-center gap-3 mb-5">
                 <span className="section-eyebrow-line" aria-hidden />
-                <p className="section-eyebrow">Próximo passo</p>
+                <p className="section-eyebrow">{copy.cta.eyebrow}</p>
               </div>
 
               <InteractiveTitle className="text-section-title text-foreground mb-5 text-balance text-3xl sm:text-4xl lg:text-5xl xl:text-[3.25rem]">
-                Sua conta de luz <span className="text-gradient-amber">nunca mais</span> será a mesma.
+                {copy.cta.titleBefore}
+                <span className="text-gradient-amber">{copy.cta.titleHighlight}</span>
+                {copy.cta.titleAfter}
               </InteractiveTitle>
 
               <p className="text-muted-foreground text-base lg:text-lg leading-relaxed mb-8">
-                O Sol já está brilhando. Você só precisa capturá-lo. Receba uma simulação personalizada com payback e
-                dimensionamento.
+                {copy.cta.description}
               </p>
 
               <div className="flex flex-col gap-3">
-                {CTA_TRUST.map((chip) => {
+                {copy.cta.trust.map((chip) => {
                   const Icon = trustIcons[chip.icon];
                   return (
                     <div key={chip.title} className="cta-trust-chip">
@@ -63,14 +65,14 @@ export default function CTASection() {
               <div className="cta-form-header">
                 <div className="flex items-center gap-2 mb-1">
                   <Sparkles size={16} className="text-primary" />
-                  <p className="cta-form-title">Solicitar Simulação</p>
+                  <p className="cta-form-title">{copy.cta.formTitle}</p>
                 </div>
-                <p className="cta-form-sub">Preencha em menos de 1 minuto</p>
+                <p className="cta-form-sub">{copy.cta.formSub}</p>
               </div>
 
               <div>
                 <label htmlFor="nome" className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground mb-2">
-                  Seu Nome
+                  {copy.cta.nameLabel}
                 </label>
                 <input
                   id="nome"
@@ -79,13 +81,13 @@ export default function CTASection() {
                   value={form.nome}
                   onChange={(e) => setForm({ ...form, nome: e.target.value })}
                   className="input-premium rounded-lg"
-                  placeholder="Como podemos te chamar?"
+                  placeholder={copy.cta.namePlaceholder}
                 />
               </div>
 
               <div>
                 <label htmlFor="whatsapp" className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground mb-2">
-                  WhatsApp
+                  {copy.cta.whatsappLabel}
                 </label>
                 <input
                   id="whatsapp"
@@ -94,13 +96,13 @@ export default function CTASection() {
                   value={form.whatsapp}
                   onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
                   className="input-premium rounded-lg"
-                  placeholder="(00) 00000-0000"
+                  placeholder={copy.cta.whatsappPlaceholder}
                 />
               </div>
 
               <div>
                 <label htmlFor="conta" className="block text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground mb-2">
-                  Valor da Conta de Luz
+                  {copy.cta.billLabel}
                 </label>
                 <input
                   id="conta"
@@ -109,7 +111,7 @@ export default function CTASection() {
                   value={form.conta}
                   onChange={(e) => setForm({ ...form, conta: e.target.value })}
                   className="input-premium rounded-lg"
-                  placeholder="R$ 800,00"
+                  placeholder={copy.cta.billPlaceholder}
                 />
               </div>
 
@@ -118,7 +120,7 @@ export default function CTASection() {
                 className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-lg btn-primary-premium font-bold text-base text-primary-foreground"
               >
                 <Send size={18} />
-                Solicitar Simulação Gratuita
+                {copy.cta.submit}
               </button>
             </form>
           </div>
