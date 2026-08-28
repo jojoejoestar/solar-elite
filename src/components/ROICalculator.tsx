@@ -1,40 +1,17 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Zap, TreePine, Leaf, TrendingUp, ArrowRight, Gauge, Clock, Sun } from "lucide-react";
 import { useSectionSymphony } from "@/hooks/useSectionSymphony";
-import { scrollToAnchor } from "@/lib/lenis";
 import { AnimatedNumber } from "./AnimatedNumber";
 import { SectionHeader } from "./ui/SectionHeader";
+import { AnchorLink } from "@/components/AnchorLink";
+import { billFillPercent, calculateRoi, ROI } from "@/lib/roi";
 
-const PRESETS = [500, 800, 1500, 2500, 5000] as const;
-
-const ROICalculator = () => {
+export default function ROICalculator() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "panel" });
-  const [bill, setBill] = useState(800);
-
-  const metrics = useMemo(() => {
-    const monthlySavings = Math.round(bill * 0.95);
-    const annualSavings = monthlySavings * 12;
-    const roi25Years = Math.round(annualSavings * 25);
-    const treesSaved = Math.round((bill / 100) * 3.2);
-    const co2Avoided = Math.round((bill / 100) * 0.85 * 12);
-    const systemKwp = Math.round((bill / 110) * 10) / 10;
-    const estimatedInvestment = Math.round(bill * 58);
-    const paybackYears =
-      annualSavings > 0 ? Math.round((estimatedInvestment / annualSavings) * 10) / 10 : 0;
-
-    return {
-      monthlySavings,
-      annualSavings,
-      roi25Years,
-      treesSaved,
-      co2Avoided,
-      systemKwp,
-      estimatedInvestment,
-      paybackYears,
-    };
-  }, [bill]);
+  const [bill, setBill] = useState<number>(ROI.defaultBill);
+  const metrics = useMemo(() => calculateRoi(bill), [bill]);
 
   const results = [
     { icon: Zap, label: "Economia Mensal", value: metrics.monthlySavings, prefix: "R$ ", color: "text-primary", accent: "roi-accent-amber" },
@@ -42,8 +19,6 @@ const ROICalculator = () => {
     { icon: TreePine, label: "Árvores Salvas/Ano", value: metrics.treesSaved, prefix: "", color: "text-secondary", accent: "roi-accent-emerald" },
     { icon: Leaf, label: "CO₂ Evitadas/Ano", value: metrics.co2Avoided, prefix: "", suffix: " t", color: "text-secondary", accent: "roi-accent-emerald" },
   ];
-
-  const fillPercent = ((bill - 300) / 9700) * 100;
 
   return (
     <section id="calculadora" ref={scope} className="section-tight relative overflow-hidden section-defer" data-motion>
@@ -64,7 +39,6 @@ const ROICalculator = () => {
 
         <div data-symphony="panel" className="roi-calculator-shell">
           <div className="roi-calculator-grid">
-            {/* Controls */}
             <div className="roi-calculator-controls">
               <div className="roi-display-panel">
                 <p className="roi-display-label">Sua conta de luz atual</p>
@@ -77,32 +51,32 @@ const ROICalculator = () => {
 
               <div className="roi-slider-block">
                 <div className="roi-slider-track-wrap">
-                  <div className="roi-slider-fill" style={{ width: `${fillPercent}%` }} />
+                  <div className="roi-slider-fill" style={{ width: `${billFillPercent(bill)}%` }} />
                   <input
                     id="bill-slider"
                     type="range"
-                    min={300}
-                    max={10000}
-                    step={50}
+                    min={ROI.minBill}
+                    max={ROI.maxBill}
+                    step={ROI.step}
                     value={bill}
                     onChange={(e) => setBill(Number(e.target.value))}
                     className="roi-slider-input"
-                    aria-valuemin={300}
-                    aria-valuemax={10000}
+                    aria-valuemin={ROI.minBill}
+                    aria-valuemax={ROI.maxBill}
                     aria-valuenow={bill}
                     aria-label="Valor da conta de luz em reais"
                   />
                 </div>
                 <div className="roi-slider-labels">
-                  <span>R$ 300</span>
-                  <span>R$ 10.000</span>
+                  <span>R$ {ROI.minBill.toLocaleString("pt-BR")}</span>
+                  <span>R$ {ROI.maxBill.toLocaleString("pt-BR")}</span>
                 </div>
               </div>
 
               <div className="roi-presets">
                 <span className="roi-presets-label">Atalhos rápidos</span>
                 <div className="roi-presets-row">
-                  {PRESETS.map((preset) => (
+                  {ROI.presets.map((preset) => (
                     <button
                       key={preset}
                       type="button"
@@ -147,39 +121,32 @@ const ROICalculator = () => {
               </div>
             </div>
 
-            {/* Results */}
             <div className="roi-results-grid">
-              {results.map((r, i) => (
-                <div key={i} data-symphony="result" className={`roi-result-card ${r.accent}`}>
+              {results.map((result) => (
+                <div key={result.label} data-symphony="result" className={`roi-result-card ${result.accent}`}>
                   <div className="roi-result-icon">
-                    <r.icon className={r.color} size={20} strokeWidth={1.75} />
+                    <result.icon className={result.color} size={20} strokeWidth={1.75} />
                   </div>
-                  <div className={`roi-result-value ${r.color}`}>
-                    <AnimatedNumber value={r.value} prefix={r.prefix || ""} suffix={r.suffix || ""} />
+                  <div className={`roi-result-value ${result.color}`}>
+                    <AnimatedNumber value={result.value} prefix={result.prefix || ""} suffix={result.suffix || ""} />
                   </div>
-                  <p className="roi-result-label">{r.label}</p>
+                  <p className="roi-result-label">{result.label}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="roi-cta-row">
-            <a
+            <AnchorLink
               href="#contato"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToAnchor("#contato", -88);
-              }}
               className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-4 rounded-xl btn-primary-premium font-bold text-base text-primary-foreground"
             >
               Quero Esse Retorno
               <ArrowRight size={18} />
-            </a>
+            </AnchorLink>
           </div>
         </div>
       </div>
     </section>
   );
-};
-
-export default ROICalculator;
+}

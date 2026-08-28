@@ -1,7 +1,6 @@
 import { mkdir, writeFile, access } from "node:fs/promises";
 import { join } from "node:path";
 
-/** Distinct, context-appropriate solar imagery — run with --force to refresh */
 const images = {
   "hero-solar.jpg": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=85",
   "tech-panel-detail.jpg": "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=85",

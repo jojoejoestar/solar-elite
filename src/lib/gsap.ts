@@ -15,19 +15,15 @@ export { gsap, useGSAP, ScrollTrigger };
 
 export const MOTION_EASE = {
   entrance: "expo.out",
-  exit: "power2.inOut",
   cta: "back.out(1.35)",
-  scrub: "none",
 } as const;
 
 export const MOTION_MEDIA = {
   desktop: "(min-width: 1024px)",
-  mobile: "(max-width: 1023px)",
   reduceMotion: "(prefers-reduced-motion: reduce)",
 } as const;
 
 export const SCROLL_START = {
   early: "top 90%",
   default: "top 85%",
-  late: "top 78%",
 } as const;

@@ -3,24 +3,26 @@
 import { useEffect, useRef, useMemo } from "react";
 import { gsap, useGSAP, MOTION_MEDIA } from "@/lib/gsap";
 
-export const SunRays = ({ className = "" }: { className?: string }) => (
-  <div className={`pointer-events-none absolute ${className}`} aria-hidden="true">
-    <div className="sun-rays-container">
-      {[...Array(12)].map((_, i) => (
-        <div
-          key={i}
-          className="sun-ray"
-          style={{
-            transform: `rotate(${i * 30}deg)`,
-            animationDelay: `${i * 0.15}s`,
-          }}
-        />
-      ))}
+export function SunRays({ className = "" }: { className?: string }) {
+  return (
+    <div className={`pointer-events-none absolute ${className}`} aria-hidden="true">
+      <div className="sun-rays-container">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <div
+            key={i}
+            className="sun-ray"
+            style={{
+              transform: `rotate(${i * 30}deg)`,
+              animationDelay: `${i * 0.15}s`,
+            }}
+          />
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+}
 
-export const LightParticles = ({ count = 20, className = "" }: { count?: number; className?: string }) => {
+export function LightParticles({ count = 20, className = "" }: { count?: number; className?: string }) {
   const particles = useMemo(
     () =>
       Array.from({ length: count }, (_, i) => ({
@@ -53,15 +55,15 @@ export const LightParticles = ({ count = 20, className = "" }: { count?: number;
       ))}
     </div>
   );
-};
+}
 
-export const LightBeams = ({
+export function LightBeams({
   className = "",
   parallax = true,
 }: {
   className?: string;
   parallax?: boolean;
-}) => {
+}) {
   const scope = useRef<HTMLDivElement>(null);
 
   useGSAP(
@@ -106,46 +108,8 @@ export const LightBeams = ({
       <div data-beam className="light-beam light-beam-3 will-change-transform" />
     </div>
   );
-};
+}
 
-export const MouseGlow = ({ className = "" }: { className?: string }) => {
-  const glowRef = useRef<HTMLDivElement>(null);
-  const quickX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
-  const quickY = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
-
-  useGSAP(
-    () => {
-      if (!glowRef.current) return;
-      gsap.set(glowRef.current, { xPercent: -50, yPercent: -50 });
-      quickX.current = gsap.quickTo(glowRef.current, "x", { duration: 0.75, ease: "power3.out" });
-      quickY.current = gsap.quickTo(glowRef.current, "y", { duration: 0.75, ease: "power3.out" });
-    },
-    { scope: glowRef },
-  );
-
-  useEffect(() => {
-    const handleMove = (e: MouseEvent) => {
-      const rect = glowRef.current?.parentElement?.getBoundingClientRect();
-      if (!rect || !quickX.current || !quickY.current) return;
-      quickX.current(e.clientX - rect.left);
-      quickY.current(e.clientY - rect.top);
-    };
-
-    window.addEventListener("mousemove", handleMove, { passive: true });
-    return () => window.removeEventListener("mousemove", handleMove);
-  }, []);
-
-  return (
-    <div
-      ref={glowRef}
-      className={`pointer-events-none absolute left-0 top-0 w-[500px] h-[500px] rounded-full opacity-20 blur-[120px] will-change-transform ${className}`}
-      style={{ background: "radial-gradient(circle, hsl(38 92% 50% / 0.4), transparent 70%)" }}
-      aria-hidden="true"
-    />
-  );
-};
-
-/** Raios solares sutis que seguem o cursor em toda a página */
 export function CursorSunlight() {
   const rootRef = useRef<HTMLDivElement>(null);
   const quickX = useRef<ReturnType<typeof gsap.quickTo> | null>(null);
@@ -238,9 +202,3 @@ export function CursorSunlight() {
     </div>
   );
 }
-
-export const LightStreak = ({ className = "" }: { className?: string }) => (
-  <div className={`pointer-events-none absolute overflow-hidden ${className}`} aria-hidden="true">
-    <div className="light-streak" />
-  </div>
-);

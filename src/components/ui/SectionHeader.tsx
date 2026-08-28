@@ -1,14 +1,14 @@
 "use client";
 
+import type { HTMLAttributes, ReactNode } from "react";
 import { InteractiveTitle } from "@/components/motion/InteractiveTitle";
 import { cn } from "@/lib/utils";
 
-type SectionHeaderProps = Omit<React.HTMLAttributes<HTMLDivElement>, "title"> & {
+type SectionHeaderProps = Omit<HTMLAttributes<HTMLDivElement>, "title"> & {
   eyebrow: string;
-  title: React.ReactNode;
+  title: ReactNode;
   description?: string;
   align?: "center" | "left";
-  className?: string;
 };
 
 export function SectionHeader({
@@ -28,12 +28,7 @@ export function SectionHeader({
         className,
       )}
     >
-      <div
-        className={cn(
-          "flex items-center gap-3 mb-5",
-          align === "center" ? "justify-center" : "",
-        )}
-      >
+      <div className={cn("flex items-center gap-3 mb-5", align === "center" ? "justify-center" : "")}>
         <span className="section-eyebrow-line" aria-hidden />
         <p className="section-eyebrow">{eyebrow}</p>
         <span className="section-eyebrow-line" aria-hidden />

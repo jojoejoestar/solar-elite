@@ -4,18 +4,19 @@ import { useRef } from "react";
 import Image from "next/image";
 import { ArrowRight, PhoneCall, ChevronDown, Zap, Users, Award } from "lucide-react";
 import { gsap, useGSAP, MOTION_EASE, MOTION_MEDIA } from "@/lib/gsap";
-import { scrollToAnchor } from "@/lib/lenis";
 import { SunRays, LightParticles } from "./LightEffects";
 import { images } from "@/lib/images";
 import { InteractiveTitle } from "@/components/motion/InteractiveTitle";
+import { AnchorLink } from "@/components/AnchorLink";
+import { HERO_METRICS } from "@/data/content";
 
-const heroMetrics = [
-  { icon: Zap, value: "500+", label: "Projetos", detail: "Residenciais e comerciais" },
-  { icon: Users, value: "12 MW", label: "Instalados", detail: "Capacidade em operação" },
-  { icon: Award, value: "98%", label: "Satisfação", detail: "NPS médio dos clientes" },
-];
+const metricIcons = {
+  projects: Zap,
+  capacity: Users,
+  satisfaction: Award,
+} as const;
 
-const HeroSection = () => {
+export default function HeroSection() {
   const scope = useRef<HTMLElement>(null);
 
   useGSAP(
@@ -47,53 +48,24 @@ const HeroSection = () => {
           const entrance = gsap.timeline({ defaults: { ease: MOTION_EASE.entrance } });
 
           entrance
-            .fromTo(
-              q("[data-hero='frame']"),
-              { scale: 0.985 },
-              { scale: 1, duration: 0.8, immediateRender: false },
-            )
-            .fromTo(
-              q("[data-hero='badge']"),
-              { autoAlpha: 0, y: 16 },
-              { autoAlpha: 1, y: 0, duration: 0.6, immediateRender: false },
-              0.08,
-            )
-            .fromTo(
-              q("[data-hero='line-inner']"),
-              { yPercent: 110 },
-              { yPercent: 0, duration: 0.85, stagger: 0.09, immediateRender: false },
-              0.14,
-            )
-            .fromTo(
-              q("[data-hero='subtitle']"),
-              { y: 14, autoAlpha: 0.72 },
-              { y: 0, autoAlpha: 1, duration: 0.65, immediateRender: false },
-              0.34,
-            )
+            .fromTo(q("[data-hero='frame']"), { scale: 0.985 }, { scale: 1, duration: 0.8, immediateRender: false })
+            .fromTo(q("[data-hero='badge']"), { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: 0.6, immediateRender: false }, 0.08)
+            .fromTo(q("[data-hero='line-inner']"), { yPercent: 110 }, { yPercent: 0, duration: 0.85, stagger: 0.09, immediateRender: false }, 0.14)
+            .fromTo(q("[data-hero='subtitle']"), { y: 14, autoAlpha: 0.72 }, { y: 0, autoAlpha: 1, duration: 0.65, immediateRender: false }, 0.34)
             .fromTo(
               q("[data-hero='actions'] > *"),
               { autoAlpha: 0, y: 18, scale: 0.96 },
               { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.1, ease: MOTION_EASE.cta, immediateRender: false },
               0.48,
             )
-            .fromTo(
-              q("[data-hero='divider']"),
-              { scaleX: 0, autoAlpha: 0 },
-              { scaleX: 1, autoAlpha: 1, duration: 0.7, ease: "power2.inOut", immediateRender: false },
-              0.58,
-            )
+            .fromTo(q("[data-hero='divider']"), { scaleX: 0, autoAlpha: 0 }, { scaleX: 1, autoAlpha: 1, duration: 0.7, ease: "power2.inOut", immediateRender: false }, 0.58)
             .fromTo(
               q("[data-hero='metric']"),
               { autoAlpha: 0, y: 24, scale: 0.94 },
               { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, stagger: 0.1, ease: "back.out(1.2)", immediateRender: false },
               0.65,
             )
-            .fromTo(
-              q("[data-hero='scroll-hint']"),
-              { autoAlpha: 0 },
-              { autoAlpha: 1, duration: 0.4, immediateRender: false },
-              0.9,
-            );
+            .fromTo(q("[data-hero='scroll-hint']"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.4, immediateRender: false }, 0.9);
 
           gsap.to(q("[data-hero='scroll-hint']"), {
             y: 6,
@@ -188,38 +160,27 @@ const HeroSection = () => {
             </span>
           </InteractiveTitle>
 
-          <p
-            data-hero="subtitle"
-            className="hero-subtitle text-pretty"
-          >
+          <p data-hero="subtitle" className="hero-subtitle text-pretty">
             <span className="hero-subtitle-accent">Independência energética</span>, proteção contra{" "}
             <span className="hero-subtitle-accent">inflação tarifária</span> e{" "}
             <span className="hero-subtitle-accent">valorização imediata</span> do seu imóvel.
           </p>
 
           <div data-hero="actions" className="hero-actions">
-            <a
+            <AnchorLink
               href="#calculadora"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToAnchor("#calculadora", -88);
-              }}
               className="hero-action-btn btn-primary-premium px-5 py-3 sm:px-7 sm:py-4 rounded-lg font-bold text-sm sm:text-base text-primary-foreground glow-amber-strong w-full sm:w-auto"
             >
               Simular Economia
               <ArrowRight size={18} />
-            </a>
-            <a
+            </AnchorLink>
+            <AnchorLink
               href="#contato"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToAnchor("#contato", -88);
-              }}
               className="hero-action-btn btn-ghost-premium px-5 py-3 sm:px-7 sm:py-4 rounded-lg font-semibold text-sm sm:text-base text-foreground w-full sm:w-auto"
             >
               <PhoneCall size={18} />
               Falar com Engenheiro
-            </a>
+            </AnchorLink>
           </div>
 
           <div data-hero="divider" className="hero-tech-divider origin-center hidden sm:flex" aria-hidden>
@@ -229,16 +190,19 @@ const HeroSection = () => {
           </div>
 
           <div data-hero="metrics" className="hero-metrics-shell">
-            {heroMetrics.map((m, i) => (
-              <div key={i} data-hero="metric" className="hero-metric-card" tabIndex={0}>
-                <div className="hero-metric-icon">
-                  <m.icon size={16} className="text-primary m-auto" />
+            {HERO_METRICS.map((metric) => {
+              const Icon = metricIcons[metric.id];
+              return (
+                <div key={metric.id} data-hero="metric" className="hero-metric-card" tabIndex={0}>
+                  <div className="hero-metric-icon">
+                    <Icon size={16} className="text-primary m-auto" />
+                  </div>
+                  <span className="hero-metric-value">{metric.value}</span>
+                  <span className="hero-metric-label">{metric.label}</span>
+                  <span className="hero-metric-detail">{metric.detail}</span>
                 </div>
-                <span className="hero-metric-value">{m.value}</span>
-                <span className="hero-metric-label">{m.label}</span>
-                <span className="hero-metric-detail">{m.detail}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -252,6 +216,4 @@ const HeroSection = () => {
       </div>
     </section>
   );
-};
-
-export default HeroSection;
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type ElementType, type MouseEvent, type ReactNode } from "react";
+import { useRef, type ElementType, type HTMLAttributes, type MouseEvent, type ReactNode } from "react";
 import { gsap, useGSAP, MOTION_MEDIA } from "@/lib/gsap";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +8,7 @@ type InteractiveTitleProps = {
   as?: ElementType;
   className?: string;
   children: ReactNode;
-} & Omit<React.HTMLAttributes<HTMLElement>, "children">;
+} & Omit<HTMLAttributes<HTMLElement>, "children">;
 
 export function InteractiveTitle({
   as: Tag = "h2",
@@ -56,7 +56,7 @@ export function InteractiveTitle({
 
   return (
     <Tag
-      ref={rootRef}
+      ref={rootRef as never}
       className={cn("interactive-title", className)}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}

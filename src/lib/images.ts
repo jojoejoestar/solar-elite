@@ -1,4 +1,3 @@
-/** Static paths — served from /public/images (cacheable, preload-friendly) */
 export const brandLogo = {
   src: "/images/logosolarelite.webp",
   width: 234,

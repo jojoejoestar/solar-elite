@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { ThemeProvider } from "next-themes";
 import { LenisProvider } from "@/components/LenisProvider";
 
 const Sonner = dynamic(
@@ -11,11 +10,9 @@ const Sonner = dynamic(
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} forcedTheme="dark">
-      <LenisProvider>
-        {children}
-        <Sonner />
-      </LenisProvider>
-    </ThemeProvider>
+    <LenisProvider>
+      {children}
+      <Sonner />
+    </LenisProvider>
   );
 }

@@ -1,5 +1,7 @@
 import type Lenis from "lenis";
 
+export const NAV_OFFSET = -88;
+
 let lenisInstance: Lenis | null = null;
 
 export function setLenis(instance: Lenis | null) {
@@ -10,7 +12,7 @@ export function getLenis() {
   return lenisInstance;
 }
 
-export function scrollToAnchor(href: string, offset = -80) {
+export function scrollToAnchor(href: string, offset = NAV_OFFSET) {
   const id = href.replace(/^#/, "");
   if (!id) {
     lenisInstance?.scrollTo(0);

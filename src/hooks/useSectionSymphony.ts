@@ -2,6 +2,7 @@
 
 import { useRef, type RefObject } from "react";
 import { gsap, useGSAP, MOTION_MEDIA, ScrollTrigger } from "@/lib/gsap";
+import { scopeQuery } from "@/lib/motion";
 import {
   resetSymphonyVisible,
   runSectionSymphony,
@@ -12,7 +13,7 @@ import {
 type SectionSymphonyOptions = {
   preset: SymphonyPreset;
   selectors?: Partial<SymphonySelectors>;
-  extra?: (q: ReturnType<typeof import("@/lib/motion").scopeQuery>, tl: gsap.core.Timeline) => void;
+  extra?: (q: ReturnType<typeof scopeQuery>, tl: gsap.core.Timeline) => void;
 };
 
 export function useSectionSymphony<T extends HTMLElement>(

@@ -2,38 +2,14 @@
 
 import { TrendingUp, AlertTriangle, DollarSign } from "lucide-react";
 import { useSectionSymphony } from "@/hooks/useSectionSymphony";
-import { cardHoverIn, cardHoverOut } from "@/lib/motion";
+import { liftHandlers } from "@/lib/motion";
 import { LightParticles } from "./LightEffects";
 import { SectionHeader } from "./ui/SectionHeader";
+import { PAIN_STATS } from "@/data/content";
 
-const stats = [
-  {
-    icon: TrendingUp,
-    step: "01",
-    value: "+72%",
-    label: "Aumento tarifário nos últimos 5 anos",
-    detail: "A conta só sobe — e você não tem controle sobre isso.",
-    accent: "primary" as const,
-  },
-  {
-    icon: AlertTriangle,
-    step: "02",
-    value: "R$ 0",
-    label: "Retorno do que você paga à concessionária",
-    detail: "Cada real pago é custo, nunca investimento.",
-    accent: "primary" as const,
-  },
-  {
-    icon: DollarSign,
-    step: "03",
-    value: "25 anos",
-    label: "De economia com energia solar",
-    detail: "Depois do payback, são décadas de energia quase gratuita.",
-    accent: "emerald" as const,
-  },
-];
+const icons = [TrendingUp, AlertTriangle, DollarSign];
 
-const PainSection = () => {
+export default function PainSection() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "scrub" });
 
   return (
@@ -54,43 +30,29 @@ const PainSection = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6 max-w-5xl mx-auto">
-          {stats.map((s, i) => (
-            <div
-              key={i}
-              data-symphony="item"
-              className="pain-stat-card"
-              tabIndex={0}
-              onMouseEnter={(e) => cardHoverIn(e.currentTarget, "[data-card-icon]")}
-              onMouseLeave={(e) => cardHoverOut(e.currentTarget, "[data-card-icon]")}
-              onFocus={(e) => cardHoverIn(e.currentTarget, "[data-card-icon]")}
-              onBlur={(e) => cardHoverOut(e.currentTarget, "[data-card-icon]")}
-            >
-              <div className="surface-accent-top" aria-hidden />
-              <span
-                className={`surface-watermark ${s.accent === "emerald" ? "card-watermark-emerald" : "card-watermark-amber"}`}
-              >
-                {s.step}
-              </span>
+          {PAIN_STATS.map((stat, i) => {
+            const Icon = icons[i];
+            const emerald = stat.accent === "emerald";
+            return (
+              <div key={stat.step} data-symphony="item" className="pain-stat-card" {...liftHandlers()}>
+                <div className="surface-accent-top" aria-hidden />
+                <span className={`surface-watermark ${emerald ? "card-watermark-emerald" : "card-watermark-amber"}`}>
+                  {stat.step}
+                </span>
 
-              <div
-                data-card-icon
-                className={`surface-icon mx-auto ${s.accent === "emerald" ? "surface-icon-emerald" : ""}`}
-              >
-                <s.icon className={s.accent === "emerald" ? "text-secondary" : "text-primary"} size={24} />
+                <div data-card-icon className={`surface-icon mx-auto ${emerald ? "surface-icon-emerald" : ""}`}>
+                  <Icon className={emerald ? "text-secondary" : "text-primary"} size={24} />
+                </div>
+
+                <p className="surface-label text-primary">Impacto {stat.step}</p>
+                <div className="pain-stat-value">{stat.value}</div>
+                <p className="surface-desc">{stat.label}</p>
+                <p className={`surface-detail ${emerald ? "text-secondary/80" : "text-primary/80"}`}>{stat.detail}</p>
               </div>
-
-              <p className="surface-label text-primary">Impacto {s.step}</p>
-              <div className="pain-stat-value">{s.value}</div>
-              <p className="surface-desc">{s.label}</p>
-              <p className={`surface-detail ${s.accent === "emerald" ? "text-secondary/80" : "text-primary/80"}`}>
-                {s.detail}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
   );
-};
-
-export default PainSection;
+}

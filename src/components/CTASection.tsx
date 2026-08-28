@@ -5,15 +5,20 @@ import { Send, Shield, Clock, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useSectionSymphony } from "@/hooks/useSectionSymphony";
 import { InteractiveTitle } from "@/components/motion/InteractiveTitle";
+import { CTA_TRUST } from "@/data/content";
 
-const CTASection = () => {
+const trustIcons = { shield: Shield, clock: Clock } as const;
+
+const emptyForm = { nome: "", whatsapp: "", conta: "" };
+
+export default function CTASection() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "split-cta" });
-  const [form, setForm] = useState({ nome: "", whatsapp: "", conta: "" });
+  const [form, setForm] = useState(emptyForm);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     toast.success("Simulação enviada! Nossa equipe entrará em contato em breve.");
-    setForm({ nome: "", whatsapp: "", conta: "" });
+    setForm(emptyForm);
   };
 
   return (
@@ -32,28 +37,25 @@ const CTASection = () => {
               </InteractiveTitle>
 
               <p className="text-muted-foreground text-base lg:text-lg leading-relaxed mb-8">
-                O Sol já está brilhando. Você só precisa capturá-lo. Receba uma simulação personalizada com payback e dimensionamento.
+                O Sol já está brilhando. Você só precisa capturá-lo. Receba uma simulação personalizada com payback e
+                dimensionamento.
               </p>
 
               <div className="flex flex-col gap-3">
-                <div className="cta-trust-chip">
-                  <div className="surface-icon shrink-0 mb-0 w-9 h-9">
-                    <Shield size={15} className="text-primary m-auto" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Sem compromisso</p>
-                    <p className="text-xs text-muted-foreground">Simulação 100% gratuita</p>
-                  </div>
-                </div>
-                <div className="cta-trust-chip">
-                  <div className="surface-icon shrink-0 mb-0 w-9 h-9">
-                    <Clock size={15} className="text-primary m-auto" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">Retorno em até 2h úteis</p>
-                    <p className="text-xs text-muted-foreground">Engenheiro dedicado ao seu projeto</p>
-                  </div>
-                </div>
+                {CTA_TRUST.map((chip) => {
+                  const Icon = trustIcons[chip.icon];
+                  return (
+                    <div key={chip.title} className="cta-trust-chip">
+                      <div className="surface-icon shrink-0 mb-0 w-9 h-9">
+                        <Icon size={15} className="text-primary m-auto" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{chip.title}</p>
+                        <p className="text-xs text-muted-foreground">{chip.subtitle}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -124,6 +126,4 @@ const CTASection = () => {
       </div>
     </section>
   );
-};
-
-export default CTASection;
+}

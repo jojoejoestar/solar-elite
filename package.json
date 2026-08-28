@@ -10,22 +10,18 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "images": "node scripts/download-images.mjs",
     "logo:webp": "npx --yes sharp-cli -i public/images/logosolarelite.png -o public/images/logosolarelite.webp -f webp -q 82"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
     "@radix-ui/react-accordion": "^1.2.11",
-    "@radix-ui/react-slot": "^1.2.3",
-    "@radix-ui/react-toast": "^1.2.14",
-    "@radix-ui/react-tooltip": "^1.2.7",
-    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "gsap": "^3.13.0",
-    "@gsap/react": "^2.1.2",
     "lenis": "^1.3.4",
     "lucide-react": "^0.462.0",
     "next": "16.2.6",
-    "next-themes": "^0.4.6",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "sonner": "^1.7.4",
@@ -33,7 +29,6 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",

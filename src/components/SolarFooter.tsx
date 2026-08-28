@@ -1,59 +1,20 @@
 "use client";
 
 import { BrandLogo } from "@/components/BrandLogo";
-import {
-  MapPin,
-  Phone,
-  Mail,
-  Instagram,
-  Facebook,
-  Linkedin,
-  Clock,
-  ArrowUp,
-  Zap,
-  Shield,
-  Award,
-} from "lucide-react";
+import { MapPin, Phone, Mail, Instagram, Facebook, Linkedin, Clock, ArrowUp, Zap, Shield, Award } from "lucide-react";
 import { useSectionSymphony } from "@/hooks/useSectionSymphony";
 import { scrollToAnchor } from "@/lib/lenis";
+import { AnchorLink } from "@/components/AnchorLink";
+import { CERTIFICATIONS, CONTACT, FOOTER_LINKS, PRESTIGE_STATS, SITE, SOCIAL } from "@/data/site";
 
-const sectionLinks = [
-  { label: "Tecnologia", href: "#tecnologia" },
-  { label: "Simulador", href: "#calculadora" },
-  { label: "Projetos", href: "#projetos" },
-  { label: "Garantias", href: "#garantias" },
-  { label: "Dúvidas", href: "#faq" },
-  { label: "Contato", href: "#contato" },
-];
+const socialIcons = {
+  Instagram,
+  Facebook,
+  LinkedIn: Linkedin,
+} as const;
 
-const prestigeStats = [
-  { value: "500+", label: "Projetos entregues" },
-  { value: "12 MW", label: "Capacidade instalada" },
-  { value: "25 anos", label: "Garantia de performance" },
-  { value: "98%", label: "Satisfação dos clientes" },
-];
-
-const certifications = ["Tier 1", "ANEEL", "ART Inclusa", "Suporte Vitalício"];
-
-function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (href.startsWith("#")) {
-      e.preventDefault();
-      scrollToAnchor(href, -88);
-    }
-  };
-
-  return (
-    <a href={href} onClick={handleClick} className="footer-link">
-      {children}
-    </a>
-  );
-}
-
-const SolarFooter = () => {
+export default function SolarFooter() {
   const scope = useSectionSymphony<HTMLElement>({ preset: "footer" });
-
-  const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
   return (
     <footer ref={scope} className="footer-premium" data-motion>
@@ -62,8 +23,8 @@ const SolarFooter = () => {
 
       <div data-symphony="prestige" className="footer-prestige-band">
         <div className="footer-prestige-inner">
-          {prestigeStats.map((stat, i) => (
-            <div key={i} className="footer-prestige-stat">
+          {PRESTIGE_STATS.map((stat) => (
+            <div key={stat.label} className="footer-prestige-stat">
               <p className="footer-prestige-value">{stat.value}</p>
               <p className="footer-prestige-label">{stat.label}</p>
             </div>
@@ -79,11 +40,12 @@ const SolarFooter = () => {
             </div>
 
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-              Engenharia fotovoltaica de alta performance. Transformamos o sol em ativos financeiros de alta rentabilidade para residências e empresas.
+              Engenharia fotovoltaica de alta performance. Transformamos o sol em ativos financeiros de alta
+              rentabilidade para residências e empresas.
             </p>
 
             <div className="footer-cert-row">
-              {certifications.map((cert) => (
+              {CERTIFICATIONS.map((cert) => (
                 <span key={cert} className="footer-cert-badge">
                   {cert}
                 </span>
@@ -109,9 +71,11 @@ const SolarFooter = () => {
           <div data-symphony="col" className="lg:col-span-3">
             <h4 className="footer-col-title">Navegação</h4>
             <ul className="space-y-3.5">
-              {sectionLinks.map((link) => (
-                <li key={link.label}>
-                  <FooterLink href={link.href}>{link.label}</FooterLink>
+              {FOOTER_LINKS.map((link) => (
+                <li key={link.href}>
+                  <AnchorLink href={link.href} className="footer-link">
+                    {link.label}
+                  </AnchorLink>
                 </li>
               ))}
             </ul>
@@ -124,25 +88,25 @@ const SolarFooter = () => {
                 <span className="footer-contact-icon">
                   <MapPin size={13} className="text-primary" />
                 </span>
-                <span>Av. Paulista, 1000 — São Paulo, SP</span>
+                <span>{CONTACT.address}</span>
               </div>
-              <div className="footer-contact-item">
+              <a href={CONTACT.phoneHref} className="footer-contact-item">
                 <span className="footer-contact-icon">
                   <Phone size={13} className="text-primary" />
                 </span>
-                <span>(11) 99999-0000</span>
-              </div>
-              <div className="footer-contact-item">
+                <span>{CONTACT.phone}</span>
+              </a>
+              <a href={`mailto:${CONTACT.email}`} className="footer-contact-item">
                 <span className="footer-contact-icon">
                   <Mail size={13} className="text-primary" />
                 </span>
-                <span>contato@solarelite.com.br</span>
-              </div>
+                <span>{CONTACT.email}</span>
+              </a>
               <div className="footer-contact-item">
                 <span className="footer-contact-icon">
                   <Clock size={13} className="text-primary" />
                 </span>
-                <span>Seg–Sex: 08h às 18h</span>
+                <span>{CONTACT.hours}</span>
               </div>
             </div>
           </div>
@@ -152,30 +116,34 @@ const SolarFooter = () => {
       <div data-symphony="bottom" className="footer-bottom">
         <div className="footer-bottom-inner">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} SolarElite Energia. Todos os direitos reservados.
+            © {new Date().getFullYear()} {SITE.legalName}. Todos os direitos reservados.
           </p>
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              {[
-                { icon: Instagram, href: "#" },
-                { icon: Facebook, href: "#" },
-                { icon: Linkedin, href: "#" },
-              ].map(({ icon: Icon, href }, i) => (
-                <a
-                  key={i}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="footer-social-btn"
-                  aria-label={`Rede social ${i + 1}`}
-                >
-                  <Icon size={15} />
-                </a>
-              ))}
+              {SOCIAL.map((item) => {
+                const Icon = socialIcons[item.label];
+                return (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="footer-social-btn"
+                    aria-label={item.label}
+                  >
+                    <Icon size={15} />
+                  </a>
+                );
+              })}
             </div>
 
-            <button onClick={scrollToTop} className="footer-social-btn" aria-label="Voltar ao topo">
+            <button
+              type="button"
+              onClick={() => scrollToAnchor("#")}
+              className="footer-social-btn"
+              aria-label="Voltar ao topo"
+            >
               <ArrowUp size={15} />
             </button>
           </div>
@@ -184,12 +152,7 @@ const SolarFooter = () => {
         <div className="footer-credit">
           <p className="footer-credit-text">
             Next.js Architecture ©{" "}
-            <a
-              href="https://agentejoestar.online"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="footer-credit-link"
-            >
+            <a href="https://agentejoestar.online" target="_blank" rel="noopener noreferrer" className="footer-credit-link">
               Agente Joestar
             </a>
           </p>
@@ -197,6 +160,4 @@ const SolarFooter = () => {
       </div>
     </footer>
   );
-};
-
-export default SolarFooter;
+}

@@ -1,12 +1,10 @@
-import type { ScrollTrigger } from "gsap/ScrollTrigger";
-import { gsap, MOTION_EASE, SCROLL_START, ScrollTrigger as ST } from "./gsap";
+import { gsap, MOTION_EASE, SCROLL_START, ScrollTrigger } from "./gsap";
 import { scopeQuery, setMotionVisible, STAGGER } from "./motion";
 
 export const SYMPHONY = {
   start: {
     section: SCROLL_START.default,
     early: SCROLL_START.early,
-    late: SCROLL_START.late,
     scrub: { start: "top 76%", end: "top 36%" },
     item: "top 88%",
   },
@@ -368,7 +366,7 @@ export function animateSectionDividers() {
 }
 
 export function scheduleScrollRefresh() {
-  const refresh = () => ST.refresh();
+  const refresh = () => ScrollTrigger.refresh();
   if (document.readyState === "complete") {
     requestAnimationFrame(refresh);
   } else {
